@@ -57,17 +57,17 @@
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
                     <div class="dropdown-menu fade-up m-0">
-                        <a href="price.html" class="dropdown-item">Pricing Plan</a>
-                        <a href="feature.html" class="dropdown-item">Features</a>
-                        <a href="quote.html" class="dropdown-item">Free Quote</a>
-                        <a href="team.html" class="dropdown-item">Our Team</a>
-                        <a href="testimonial.html" class="dropdown-item active">Testimonial</a>
-                        <a href="404.html" class="dropdown-item">404 Page</a>
+                        <a href="onboard_carrier.html" class="dropdown-item">Onboard a Carrier</a>
+                        <a href="onboard_seller.html" class="dropdown-item">Onboard a Seller</a>
+                        <a href="place-order.html" class="dropdown-item">Place an Order</a>
+                        <a href="track.html" class="dropdown-item">Track Your Package</a>
+                        <a href="update_status.html" class="dropdown-item">Update Shipment Status</a>
+                        <a href="analytics.html" class="dropdown-item">Analytics & Dashboard</a>
                     </div>
                 </div>
                 <a href="contact.html" class="nav-item nav-link">Contact</a>
             </div>
-            <h4 class="m-0 pe-lg-5 d-none d-lg-block"><i class="fa fa-headphones text-primary me-3"></i>+012 345 6789</h4>
+            <h4 class="m-0 pe-lg-5 d-none d-lg-block"></h4>
         </div>
     </nav>
     <!-- Navbar End -->
@@ -76,12 +76,12 @@
     <!-- Page Header Start -->
     <div class="container-fluid page-header py-5" style="margin-bottom: 6rem;">
         <div class="container py-5">
-            <h1 class="display-3 text-white mb-3 animated slideInDown">Testimonial</h1>
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Update Status</h1>
             <nav aria-label="breadcrumb animated slideInDown">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
                     <li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
-                    <li class="breadcrumb-item text-white active" aria-current="page">Testimonial</li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Update Status</li>
                 </ol>
             </nav>
         </div>
@@ -91,57 +91,36 @@
 
     <!-- Testimonial Start -->
     <div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
-        <div class="container py-5">
-            <div class="text-center">
-                <h6 class="text-secondary text-uppercase">Testimonial</h6>
-                <h1 class="mb-0">Our Clients Say!</h1>
-            </div>
-            <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
-                <div class="testimonial-item p-4 my-5">
-                    <i class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"></i>
-                    <div class="d-flex align-items-end mb-4">
-                        <img class="img-fluid flex-shrink-0" src="img/testimonial-1.jpg" style="width: 80px; height: 80px;">
-                        <div class="ms-4">
-                            <h5 class="mb-1">Client Name</h5>
-                            <p class="m-0">Profession</p>
-                        </div>
-                    </div>
-                    <p class="mb-0">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
+        <div class="container ">
+            <div class="container ">
+    <h2 class="text-center mb-4">Update Parcel Status</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="statusUpdateForm">
+                <div class="mb-3">
+                    <label for="trackingId" class="form-label">Tracking ID</label>
+                    <input type="text" class="form-control" id="trackingId" placeholder="Enter Tracking ID" required>
                 </div>
-                <div class="testimonial-item p-4 my-5">
-                    <i class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"></i>
-                    <div class="d-flex align-items-end mb-4">
-                        <img class="img-fluid flex-shrink-0" src="img/testimonial-2.jpg" style="width: 80px; height: 80px;">
-                        <div class="ms-4">
-                            <h5 class="mb-1">Client Name</h5>
-                            <p class="m-0">Profession</p>
-                        </div>
-                    </div>
-                    <p class="mb-0">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
+                <div class="mb-3">
+                    <label for="newStatus" class="form-label">New Status</label>
+                    <select class="form-select" id="newStatus" required>
+                        <option value="">Select Status</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Returned">Returned</option>
+                    </select>
                 </div>
-                <div class="testimonial-item p-4 my-5">
-                    <i class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"></i>
-                    <div class="d-flex align-items-end mb-4">
-                        <img class="img-fluid flex-shrink-0" src="img/testimonial-3.jpg" style="width: 80px; height: 80px;">
-                        <div class="ms-4">
-                            <h5 class="mb-1">Client Name</h5>
-                            <p class="m-0">Profession</p>
-                        </div>
-                    </div>
-                    <p class="mb-0">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Update Status</button>
                 </div>
-                <div class="testimonial-item p-4 my-5">
-                    <i class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"></i>
-                    <div class="d-flex align-items-end mb-4">
-                        <img class="img-fluid flex-shrink-0" src="img/testimonial-4.jpg" style="width: 80px; height: 80px;">
-                        <div class="ms-4">
-                            <h5 class="mb-1">Client Name</h5>
-                            <p class="m-0">Profession</p>
-                        </div>
-                    </div>
-                    <p class="mb-0">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
-                </div>
-            </div>
+            </form>
+            <div id="updateMessage" class="mt-3"></div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
     <!-- Testimonial End -->
@@ -221,6 +200,32 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script>
+    const dummyShipments = [
+        { id: 'PKG123', user: 'Ankit Sharma', status: 'Shipped' },
+        { id: 'PKG456', user: 'Priya Verma', status: 'In Transit' },
+        { id: 'PKG789', user: 'Rajesh Kumar', status: 'Delivered' }
+    ];
+
+    document.getElementById('statusUpdateForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const id = document.getElementById('trackingId').value.trim();
+        const newStatus = document.getElementById('newStatus').value;
+        const messageDiv = document.getElementById('updateMessage');
+
+        const shipment = dummyShipments.find(pkg => pkg.id === id);
+
+        if (shipment) {
+            shipment.status = newStatus;
+            messageDiv.innerHTML = `<div class="alert alert-success">Status updated to <strong>${newStatus}</strong> for <strong>${id}</strong></div>`;
+        } else {
+            messageDiv.innerHTML = `<div class="alert alert-danger">Tracking ID <strong>${id}</strong> not found.</div>`;
+        }
+
+        document.getElementById('statusUpdateForm').reset();
+    });
+</script>
 </body>
 
 </html>
