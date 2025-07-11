@@ -57,8 +57,6 @@ const ProviderSchema = new mongoose.Schema(
     rejectionReason: {
       type: String,
     },
-<<<<<<< HEAD
-=======
     rejectedAt: {
       type: Date,
     },
@@ -75,7 +73,6 @@ const ProviderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
->>>>>>> e56769a (Backend updated)
   },
   {
     timestamps: true,

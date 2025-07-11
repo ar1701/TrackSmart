@@ -7,13 +7,10 @@ const {
   ensureNotAuthenticated,
 } = require("../middleware/auth");
 
-// Provider login page
+// Login page
 router.get("/login", ensureNotAuthenticated, authController.showLogin);
 
-// Provider login page (alternative route)
-router.get("/provider/login", ensureNotAuthenticated, authController.showLogin);
-
-// Handle provider login
+// Handle login
 router.post(
   "/login",
   ensureNotAuthenticated,
@@ -25,34 +22,11 @@ router.post(
   authController.login
 );
 
-// Handle provider login (alternative route)
-router.post(
-  "/provider/login",
-  ensureNotAuthenticated,
-  passport.authenticate("local", {
-    successRedirect: "/dashboard",
-    failureRedirect: "/provider/login",
-    failureFlash: true,
-  }),
-  authController.login
-);
-
-// Provider dashboard
+// Dashboard
 router.get("/dashboard", ensureAuthenticated, authController.showDashboard);
 
-// Provider dashboard (alternative route)
-router.get(
-  "/provider/dashboard",
-  ensureAuthenticated,
-  authController.showDashboard
-);
-
-// Provider logout
+// Logout
 router.post("/logout", ensureAuthenticated, authController.logout);
 router.get("/logout", ensureAuthenticated, authController.logout);
-
-// Provider logout (alternative routes)
-router.post("/provider/logout", ensureAuthenticated, authController.logout);
-router.get("/provider/logout", ensureAuthenticated, authController.logout);
 
 module.exports = router;
