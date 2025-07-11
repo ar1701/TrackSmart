@@ -1,4 +1,5 @@
 const Provider = require("../model/provider");
+const { handleResponse } = require("../utils/responseHandler");
 
 // Create a new provider onboard request
 const createProviderRequest = async (req, res) => {
@@ -6,116 +7,142 @@ const createProviderRequest = async (req, res) => {
     const {
       name,
       email,
+      hasBaseUri,
       baseUri,
       actions,
       supportedPincodes,
       weightLimits,
       dimensionalLimits,
-      credentials,
     } = req.body;
 
     // Validate required fields
-    if (!name || !email || !baseUri) {
-      return res.status(400).json({
+    if (!name || !email) {
+      return handleResponse(req, res, "api-response", {
         success: false,
-        message: "Name, email, and baseUri are required fields",
-      });
+        message: "Name and email are required fields",
+        status: 400
+      }, { title: "Provider Onboarding Error" });
+    }
+
+    // Validate baseUri only if hasBaseUri is true
+    if (hasBaseUri === true && (!baseUri || baseUri.trim() === "")) {
+      return handleResponse(req, res, "api-response", {
+        success: false,
+        message: "Base URI is required when 'Has Base URI' is selected",
+        status: 400
+      }, { title: "Provider Onboarding Error" });
     }
 
     // Create new provider instance
     const newProvider = new Provider({
       name,
       email,
-      baseUri,
+      hasBaseUri: hasBaseUri || false,
+      baseUri: hasBaseUri ? baseUri : undefined,
       actions: actions || [],
       supportedPincodes: supportedPincodes || [],
       weightLimits: weightLimits || { min: 0, max: 0 },
       dimensionalLimits: dimensionalLimits || { l: 0, w: 0, h: 0 },
-      credentials: credentials || {},
       isVerified: false, // Default to false for onboard request
     });
 
     // Save to database (bppId will be auto-generated)
     const savedProvider = await newProvider.save();
 
-    res.status(201).json({
+    return handleResponse(req, res, "api-response", {
       success: true,
-      message:
-        "Provider onboard request submitted successfully. Please wait for verification.",
-      data: savedProvider,
-    });
+      message: "Provider onboard request submitted successfully",
+      data: {
+        provider: {
+          id: savedProvider._id,
+          name: savedProvider.name,
+          bppId: savedProvider.bppId,
+          email: savedProvider.email,
+          isVerified: savedProvider.isVerified,
+          createdAt: savedProvider.createdAt,
+        },
+      }
+    }, { title: "Provider Onboarding Success" });
   } catch (error) {
-    console.error("Error creating provider:", error);
-
-    // Handle duplicate key error for email or bppId
-    if (error.code === 11000) {
-      const field = error.keyPattern.email ? "email" : "bppId";
-      return res.status(409).json({
-        success: false,
-        message: `Provider with this ${field} already exists`,
-      });
-    }
-
-    // Handle validation errors
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        errors: error.errors,
-      });
-    }
-
-    res.status(500).json({
+    console.error("Error creating provider onboard request:", error);
+    return handleResponse(req, res, "api-response", {
       success: false,
-      message: "Internal server error",
+      message: "Failed to submit provider onboard request",
       error: error.message,
-    });
+      status: 500
+    }, { title: "Provider Onboarding Error" });
   }
 };
 
-// Get all onboard requests (pending verification)
+// Get all provider onboard requests (pending verification)
 const getOnboardRequests = async (req, res) => {
   try {
-    const pendingProviders = await Provider.find({ isVerified: false })
-      .select("-credentials") // Exclude sensitive credentials from response
-      .sort({ requestedAt: -1 }); // Sort by latest requests first
+    const providers = await Provider.find({ isVerified: false }).sort({
+      createdAt: -1,
+    });
 
-    res.status(200).json({
+    return handleResponse(req, res, "api-response", {
       success: true,
-      message: "Onboard requests retrieved successfully",
-      count: pendingProviders.length,
-      data: pendingProviders,
-    });
+      message: "Provider onboard requests retrieved successfully",
+      data: {
+        count: providers.length,
+        providers: providers.map((p) => ({
+          id: p._id,
+          name: p.name,
+          bppId: p.bppId,
+          email: p.email,
+          hasBaseUri: p.hasBaseUri,
+          baseUri: p.baseUri,
+          supportedPincodes: p.supportedPincodes,
+          createdAt: p.createdAt,
+        })),
+      }
+    }, { title: "Provider Onboard Requests" });
   } catch (error) {
-    console.error("Error fetching onboard requests:", error);
-    res.status(500).json({
+    console.error("Error retrieving provider onboard requests:", error);
+    return handleResponse(req, res, "api-response", {
       success: false,
-      message: "Internal server error",
+      message: "Failed to retrieve provider onboard requests",
       error: error.message,
-    });
+      status: 500
+    }, { title: "Provider Requests Error" });
   }
 };
 
 // Get all verified providers
 const getVerifiedProviders = async (req, res) => {
   try {
-    const verifiedProviders = await Provider.find({ isVerified: true })
-      .select("-credentials") // Exclude sensitive credentials from response
-      .sort({ verifiedAt: -1 }); // Sort by latest verified first
+    const providers = await Provider.find({ isVerified: true }).sort({
+      name: 1,
+    });
 
-    res.status(200).json({
+    return handleResponse(req, res, "api-response", {
       success: true,
       message: "Verified providers retrieved successfully",
-      count: verifiedProviders.length,
-      data: verifiedProviders,
-    });
+      data: {
+        count: providers.length,
+        providers: providers.map((p) => ({
+          id: p._id,
+          name: p.name,
+          bppId: p.bppId,
+          email: p.email,
+          hasBaseUri: p.hasBaseUri,
+          baseUri: p.baseUri,
+          supportedPincodes: p.supportedPincodes.length,
+          hasCredentials: p.hasCredentials,
+          createdAt: p.createdAt,
+          verifiedAt: p.verifiedAt,
+        })),
+      }
+    }, { title: "Verified Providers" });
   } catch (error) {
-    console.error("Error fetching verified providers:", error);
-    res.status(500).json({
+    console.error("Error retrieving verified providers:", error);
+    return handleResponse(req, res, "api-response", {
       success: false,
-      message: "Internal server error",
+      message: "Failed to retrieve verified providers",
       error: error.message,
-    });
+      status: 500
+    }, { title: "Providers Error" });
   }
 };
 
@@ -124,78 +151,160 @@ const verifyProvider = async (req, res) => {
   try {
     const { bppId } = req.params;
 
-    // Find the provider and update verification status
-    const provider = await Provider.findOneAndUpdate(
-      { bppId: bppId, isVerified: false },
-      {
-        isVerified: true,
-        verifiedAt: new Date(),
-      },
-      { new: true, runValidators: true }
-    ).select("-credentials"); // Exclude sensitive credentials from response
+    const provider = await Provider.findOne({ bppId });
 
     if (!provider) {
-      return res.status(404).json({
+      return handleResponse(req, res, "api-response", {
         success: false,
-        message: "Provider not found or already verified",
-      });
+        message: "Provider not found",
+        status: 404
+      }, { title: "Provider Not Found" });
     }
 
-    res.status(200).json({
+    // Update provider status
+    provider.isVerified = true;
+    provider.verifiedAt = new Date();
+    await provider.save();
+
+    return handleResponse(req, res, "api-response", {
       success: true,
       message: "Provider verified successfully",
-      data: provider,
-    });
+      data: {
+        provider: {
+          id: provider._id,
+          name: provider.name,
+          bppId: provider.bppId,
+          email: provider.email,
+          isVerified: provider.isVerified,
+          verifiedAt: provider.verifiedAt,
+        },
+      }
+    }, { title: "Provider Verified" });
   } catch (error) {
     console.error("Error verifying provider:", error);
-    res.status(500).json({
+    return handleResponse(req, res, "api-response", {
       success: false,
-      message: "Internal server error",
+      message: "Failed to verify provider",
       error: error.message,
-    });
+      status: 500
+    }, { title: "Provider Verification Error" });
   }
 };
 
-// Reject a provider
+// Reject a provider onboard request
 const rejectProvider = async (req, res) => {
   try {
     const { bppId } = req.params;
-    const { reason, message } = req.body;
+    const { reason } = req.body;
 
-    // Use either 'reason' or 'message' field for backward compatibility
-    const rejectionMessage = reason || message || "No reason provided";
-
-    // Find the provider and update verification status
-    const provider = await Provider.findOneAndUpdate(
-      { bppId: bppId },
-      {
-        isVerified: false,
-        verifiedAt: null,
-        rejectionReason: rejectionMessage,
-        rejectedAt: new Date(),
-      },
-      { new: true, runValidators: true }
-    ).select("-credentials"); // Exclude sensitive credentials from response
+    const provider = await Provider.findOne({ bppId });
 
     if (!provider) {
-      return res.status(404).json({
+      return handleResponse(req, res, "api-response", {
         success: false,
         message: "Provider not found",
-      });
+        status: 404
+      }, { title: "Provider Not Found" });
     }
 
-    res.status(200).json({
+    // Update rejection details
+    provider.isRejected = true;
+    provider.rejectionReason = reason || "No reason provided";
+    provider.rejectedAt = new Date();
+    await provider.save();
+
+    return handleResponse(req, res, "api-response", {
       success: true,
-      message: "Provider verification rejected",
-      data: provider,
-    });
+      message: "Provider onboard request rejected",
+      data: {
+        provider: {
+          id: provider._id,
+          name: provider.name,
+          bppId: provider.bppId,
+          email: provider.email,
+          isRejected: provider.isRejected,
+          rejectionReason: provider.rejectionReason,
+          rejectedAt: provider.rejectedAt,
+        },
+      }
+    }, { title: "Provider Rejected" });
   } catch (error) {
     console.error("Error rejecting provider:", error);
-    res.status(500).json({
+    return handleResponse(req, res, "api-response", {
       success: false,
-      message: "Internal server error",
+      message: "Failed to reject provider",
       error: error.message,
-    });
+      status: 500
+    }, { title: "Provider Rejection Error" });
+  }
+};
+
+// Generate login credentials for a verified provider
+const generateProviderCredentials = async (req, res) => {
+  try {
+    const { bppId } = req.params;
+
+    const provider = await Provider.findOne({ bppId, isVerified: true });
+
+    if (!provider) {
+      return handleResponse(req, res, "api-response", {
+        success: false,
+        message: "Verified provider not found",
+        status: 404
+      }, { title: "Provider Not Found" });
+    }
+
+    // Check if credentials already exist
+    if (provider.hasCredentials) {
+      return handleResponse(req, res, "api-response", {
+        success: false,
+        message: "Provider already has credentials",
+        status: 400
+      }, { title: "Credentials Already Exist" });
+    }
+
+    // Generate credentials
+    const username = provider.bppId;
+    const password = Math.random().toString(36).substring(2, 10);
+
+    // Hash password before saving
+    const bcrypt = require("bcryptjs");
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Update provider with credentials
+    provider.credentials = {
+      username,
+      password: hashedPassword,
+    };
+    provider.hasCredentials = true;
+    await provider.save();
+
+    return handleResponse(req, res, "api-response", {
+      success: true,
+      message: "Provider credentials generated successfully",
+      data: {
+        provider: {
+          id: provider._id,
+          name: provider.name,
+          bppId: provider.bppId,
+          email: provider.email,
+        },
+        credentials: {
+          username,
+          password, // Plain text password to show once
+          note: "Please save these credentials. The password will not be shown again.",
+        },
+      }
+    }, { title: "Provider Credentials" });
+  } catch (error) {
+    console.error("Error generating provider credentials:", error);
+    return handleResponse(req, res, "api-response", {
+      success: false,
+      message: "Failed to generate provider credentials",
+      error: error.message,
+      status: 500
+    }, { title: "Credentials Generation Error" });
   }
 };
 
@@ -205,4 +314,5 @@ module.exports = {
   getVerifiedProviders,
   verifyProvider,
   rejectProvider,
+  generateProviderCredentials,
 };
