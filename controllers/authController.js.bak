@@ -1,0 +1,315 @@
+const bcrypt = require("bcryptjs");
+const Provider = require("../model/provider");
+const passport = require("passport");
+
+// Show login page
+const showLogin = (req, res) => {
+  res.render("login", {
+    title: "Provider Login",
+    error: req.flash("error"),
+    success: req.flash("success"),
+  });
+};
+
+// Handle login
+const login = (req, res) => {
+  res.redirect("/dashboard");
+};
+
+// Show dashboard
+const showDashboard = async (req, res) => {
+  try {
+    const provider = req.user;
+    res.render("dashboard", {
+      title: "Provider Dashboard",
+      provider: provider,
+    });
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    res.status(500).render("error", { message: "Error loading dashboard" });
+  }
+};
+
+// Logout
+const logout = (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+    }
+    req.flash("success", "You have been logged out successfully");
+    res.redirect("/login");
+  });
+};
+
+// Generate credentials for verified provider (internal function)
+const generateCredentials = async (providerId) => {
+  try {
+    const provider = await Provider.findById(providerId);
+
+    if (!provider || !provider.isVerified) {
+      throw new Error("Provider not found or not verified");
+    }
+
+    if (provider.isPasswordGenerated) {
+      return {
+        username: provider.username,
+        message: "Credentials already exist",
+      };
+    }
+
+    // Generate username from name and bppId
+    const cleanName = provider.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "") // Remove special characters and spaces
+      .substring(0, 10); // Limit to 10 characters
+
+    const username = `${cleanName}_${provider.bppId.toLowerCase()}`;
+
+    // Generate random password
+    const password =
+      Math.random().toString(36).slice(-8) +
+      Math.random().toString(36).slice(-8);
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update provider with credentials
+    await Provider.findByIdAndUpdate(providerId, {
+      username: username,
+      password: hashedPassword,
+      isPasswordGenerated: true,
+    });
+
+    return {
+      username: username,
+      password: password,
+      message: "Credentials generated successfully",
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// API endpoint for provider login
+const providerLoginAPI = (req, res, next) => {
+  passport.authenticate("local", (err, provider, info) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: err.message,
+      });
+    }
+
+    if (!provider) {
+      return res.status(401).json({
+        success: false,
+        message: info.message || "Authentication failed",
+      });
+    }
+
+    req.logIn(provider, (err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Login failed",
+          error: err.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Login successful",
+        data: {
+          bppId: provider.bppId,
+          name: provider.name,
+          email: provider.email,
+          isVerified: provider.isVerified,
+          verifiedAt: provider.verifiedAt,
+        },
+        redirectUrl: "/dashboard",
+      });
+    });
+  })(req, res, next);
+};
+
+// GET API endpoint for provider login page/info
+const getProviderLoginAPI = (req, res) => {
+  // Check if already authenticated
+  if (req.isAuthenticated()) {
+    return res.status(200).json({
+      success: true,
+      message: "Provider already authenticated",
+      data: {
+        isAuthenticated: true,
+        provider: {
+          bppId: req.user.bppId,
+          name: req.user.name,
+          email: req.user.email,
+          isVerified: req.user.isVerified,
+        },
+        redirectUrl: "/api/providers/dashboard",
+      },
+    });
+  }
+
+  // Return login form information for unauthenticated users
+  res.status(200).json({
+    success: true,
+    message: "Provider login endpoint",
+    data: {
+      isAuthenticated: false,
+      loginUrl: "/api/providers/login",
+      method: "POST",
+      requiredFields: {
+        username: "Provider username (generated after verification)",
+        password: "Provider password (generated after verification)",
+      },
+      instructions: [
+        "1. Submit your provider onboard request via POST /api/providers",
+        "2. Wait for admin verification",
+        "3. Receive login credentials",
+        "4. Use POST /api/providers/login to authenticate",
+        "5. Access dashboard via GET /api/providers/dashboard",
+      ],
+      helpUrls: {
+        onboard: "/api/providers",
+        webLogin: "/login",
+        documentation: "/api",
+      },
+    },
+  });
+};
+
+// API endpoint to get provider dashboard data
+const getProviderDashboard = async (req, res) => {
+  try {
+    const provider = req.user;
+
+    if (!provider) {
+      return res.status(401).json({
+        success: false,
+        message: "Provider not authenticated",
+      });
+    }
+
+    // Get provider's dashboard data
+    const dashboardData = {
+      provider: {
+        bppId: provider.bppId,
+        name: provider.name,
+        email: provider.email,
+        baseUri: provider.baseUri,
+        hasBaseUri: provider.hasBaseUri,
+        actions: provider.actions,
+        supportedPincodes: provider.supportedPincodes,
+        weightLimits: provider.weightLimits,
+        dimensionalLimits: provider.dimensionalLimits,
+        isVerified: provider.isVerified,
+        verifiedAt: provider.verifiedAt,
+        requestedAt: provider.requestedAt,
+      },
+      stats: {
+        // Add any statistics you want to show in dashboard
+        accountStatus: provider.isVerified ? "Verified" : "Pending",
+        memberSince: provider.requestedAt,
+        lastLogin: new Date(), // You can track this if needed
+      },
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Dashboard data retrieved successfully",
+      data: dashboardData,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error loading dashboard data",
+      error: error.message,
+    });
+  }
+};
+
+// API endpoint to get provider profile
+const getProviderProfile = async (req, res) => {
+  try {
+    const provider = req.user;
+
+    if (!provider) {
+      return res.status(401).json({
+        success: false,
+        message: "Provider not authenticated",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Provider profile retrieved successfully",
+      data: {
+        bppId: provider.bppId,
+        name: provider.name,
+        email: provider.email,
+        baseUri: provider.baseUri,
+        hasBaseUri: provider.hasBaseUri,
+        actions: provider.actions,
+        supportedPincodes: provider.supportedPincodes,
+        weightLimits: provider.weightLimits,
+        dimensionalLimits: provider.dimensionalLimits,
+        isVerified: provider.isVerified,
+        verifiedAt: provider.verifiedAt,
+        requestedAt: provider.requestedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching provider profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error loading provider profile",
+      error: error.message,
+    });
+  }
+};
+
+// API endpoint for provider logout
+const providerLogoutAPI = (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Logout failed",
+        error: err.message,
+      });
+    }
+
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Session cleanup failed",
+          error: err.message,
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Logout successful",
+      });
+    });
+  });
+};
+
+module.exports = {
+  showLogin,
+  login,
+  showDashboard,
+  logout,
+  generateCredentials,
+  providerLoginAPI,
+  getProviderLoginAPI,
+  getProviderDashboard,
+  getProviderProfile,
+  providerLogoutAPI,
+};

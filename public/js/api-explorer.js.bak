@@ -1,0 +1,205 @@
+// API Explorer JavaScript
+
+// Toggle endpoint card body
+function toggleEndpoint(element) {
+    const body = element.nextElementSibling;
+    if (body.style.display === 'block') {
+        body.style.display = 'none';
+    } else {
+        body.style.display = 'block';
+    }
+}
+
+// Copy response text
+function copyResponse(elementId) {
+    const responseText = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(responseText).then(() => {
+        const button = document.querySelector(`#${elementId} + .copy-btn`);
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+            button.innerHTML = '<i class="fas fa-copy"></i>';
+        }, 2000);
+    });
+}
+
+// Show feedback message
+function showFeedback(message, isSuccess = true) {
+    if (typeof showApiMessage === 'function') {
+        showApiMessage(message, isSuccess);
+    } else {
+        // Fallback if the API feedback partial is not included
+        alert(message);
+    }
+}
+
+// Document ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Submit API form
+    document.querySelectorAll('.api-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const method = this.dataset.method;
+            let endpoint = this.dataset.endpoint;
+            const formData = new FormData(this);
+            
+            // Find the submit button and show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+            submitButton.disabled = true;
+            
+            // Handle response display element
+            const responseId = 'response-' + endpoint.replace(/\//g, '-').replace(/^-api-/, '').replace(/^-/, '').replace(/\{|\}/g, '');
+            const responseElement = document.getElementById(responseId);
+            
+            // Show loading
+            responseElement.innerHTML = 'Loading...';
+            
+            try {
+                // Replace URL parameters
+                if (endpoint.includes('{')) {
+                    for (const [key, value] of formData.entries()) {
+                        if (endpoint.includes(`{${key}}`)) {
+                            endpoint = endpoint.replace(`{${key}}`, value);
+                            formData.delete(key);
+                        }
+                    }
+                }
+                
+                // Convert FormData to JSON for POST and PUT requests
+                let body = null;
+                const headers = {
+                    'Accept': 'application/json'
+                };
+                
+                if (method === 'POST' || method === 'PUT') {
+                    headers['Content-Type'] = 'application/json';
+                    const jsonData = {};
+                    
+                    for (const [key, value] of formData.entries()) {
+                        // Handle nested objects (e.g., dimensions.length)
+                        if (key.includes('.')) {
+                            const parts = key.split('.');
+                            let obj = jsonData;
+                            
+                            for (let i = 0; i < parts.length - 1; i++) {
+                                const part = parts[i];
+                                if (!obj[part]) {
+                                    obj[part] = {};
+                                }
+                                obj = obj[part];
+                            }
+                            
+                            // Handle number conversion for numeric inputs
+                            if (!isNaN(value) && value !== '') {
+                                obj[parts[parts.length - 1]] = Number(value);
+                            } else {
+                                // Handle checkboxes
+                                if (value === 'on') {
+                                    obj[parts[parts.length - 1]] = true;
+                                } else {
+                                    obj[parts[parts.length - 1]] = value;
+                                }
+                            }
+                        } else {
+                            // Handle number conversion for numeric inputs
+                            if (!isNaN(value) && value !== '' && key !== 'username' && key !== 'password' && !key.includes('Pincode')) {
+                                jsonData[key] = Number(value);
+                            } else {
+                                // Handle checkboxes
+                                if (value === 'on') {
+                                    jsonData[key] = true;
+                                } else {
+                                    jsonData[key] = value;
+                                }
+                            }
+                        }
+                    }
+                    
+                    body = JSON.stringify(jsonData);
+                } else if (method === 'GET') {
+                    // For GET requests, add query parameters
+                    const params = new URLSearchParams();
+                    for (const [key, value] of formData.entries()) {
+                        params.append(key, value);
+                    }
+                    
+                    if (params.toString()) {
+                        endpoint += '?' + params.toString();
+                    }
+                }
+                
+                // Make API request
+                console.log(`Making ${method} request to ${endpoint}`);
+                if (body) {
+                    console.log('Request body:', body);
+                }
+                
+                const response = await fetch(endpoint, {
+                    method,
+                    headers,
+                    body,
+                    credentials: 'include'
+                });
+                
+                // Get response and handle JSON parsing errors
+                let result;
+                const responseText = await response.text();
+                
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    result = {
+                        error: true,
+                        message: 'Invalid JSON response',
+                        rawResponse: responseText
+                    };
+                }
+                
+                // Display formatted response
+                responseElement.innerHTML = JSON.stringify(result, null, 2);
+                
+                // Highlight status code in the response box
+                const statusColorClass = response.ok ? 'text-success' : 'text-danger';
+                const statusText = response.ok ? 'Success' : 'Error';
+                const statusBanner = `<div class="${statusColorClass} mb-2">
+                    <strong>${statusText} (${response.status}):</strong> ${response.statusText}
+                </div>`;
+                responseElement.innerHTML = statusBanner + responseElement.innerHTML;
+                
+            } catch (error) {
+                responseElement.innerHTML = `Error: ${error.message}`;
+            } finally {
+                // Restore button state
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+            }
+        });
+    });
+    
+    // Open first endpoint in each section by default
+    document.querySelectorAll('.api-section-body').forEach(section => {
+        const firstEndpoint = section.querySelector('.endpoint-header');
+        if (firstEndpoint) {
+            // Only open the first endpoint in the first section
+            if (section === document.querySelector('.api-section-body')) {
+                toggleEndpoint(firstEndpoint);
+            }
+        }
+    });
+    
+    // Automatically scroll to section when navigation links are clicked
+    document.querySelectorAll('.list-group-item').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});

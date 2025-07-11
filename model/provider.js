@@ -20,15 +20,29 @@ const ProviderSchema = new mongoose.Schema(
         "Please enter a valid email address",
       ],
     },
+    hasBaseUri: {
+      type: Boolean,
+      default: false,
+    },
     baseUri: {
       type: String,
-      required: true,
+      required: function () {
+        return this.hasBaseUri === true;
+      },
+      validate: {
+        validator: function (value) {
+          if (this.hasBaseUri && (!value || value.trim() === "")) {
+            return false;
+          }
+          return true;
+        },
+        message: "Base URI is required when 'Has Base URI' is selected",
+      },
     },
     actions: [String],
     supportedPincodes: [String],
     weightLimits: { min: Number, max: Number },
     dimensionalLimits: { l: Number, w: Number, h: Number },
-    credentials: Object,
     isVerified: {
       type: Boolean,
       default: false,
@@ -43,6 +57,25 @@ const ProviderSchema = new mongoose.Schema(
     rejectionReason: {
       type: String,
     },
+<<<<<<< HEAD
+=======
+    rejectedAt: {
+      type: Date,
+    },
+    // Authentication fields
+    username: {
+      type: String,
+      unique: true,
+      sparse: true, // Only enforce uniqueness for non-null values
+    },
+    password: {
+      type: String,
+    },
+    isPasswordGenerated: {
+      type: Boolean,
+      default: false,
+    },
+>>>>>>> e56769a (Backend updated)
   },
   {
     timestamps: true,
