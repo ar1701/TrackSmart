@@ -55,8 +55,8 @@
                 <a href="about.html" class="nav-item nav-link">About</a>
                 <a href="service.html" class="nav-item nav-link">Services</a>
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                     <div class="dropdown-menu fade-up m-0">
+                    <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
+                    <div class="dropdown-menu fade-up m-0">
                         <a href="onboard_carrier.html" class="dropdown-item">Onboard a Carrier</a>
                         <a href="onboard_seller.html" class="dropdown-item">Onboard a Seller</a>
                         <a href="place-order.html" class="dropdown-item">Place an Order</a>
@@ -65,7 +65,7 @@
                         <a href="analytics.html" class="dropdown-item">Analytics & Dashboard</a>
                     </div>
                 </div>
-                <a href="contact.html" class="nav-item nav-link active">Contact</a>
+                <a href="contact.html" class="nav-item nav-link">Contact</a>
             </div>
             <h4 class="m-0 pe-lg-5 d-none d-lg-block"></h4>
         </div>
@@ -76,12 +76,12 @@
     <!-- Page Header Start -->
     <div class="container-fluid page-header py-5" style="margin-bottom: 6rem;">
         <div class="container py-5">
-            <h1 class="display-3 text-white mb-3 animated slideInDown">Contact Us</h1>
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Update Status</h1>
             <nav aria-label="breadcrumb animated slideInDown">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
                     <li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
-                    <li class="breadcrumb-item text-white active" aria-current="page">Contact</li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Update Status</li>
                 </ol>
             </nav>
         </div>
@@ -89,62 +89,42 @@
     <!-- Page Header End -->
 
 
-    <!-- Contact Start -->
-    <div class="container-fluid overflow-hidden py-5 px-lg-0">
-        <div class="container contact-page py-5 px-lg-0">
-            <div class="row g-5 mx-lg-0">
-                <div class="col-md-6 contact-form wow fadeIn" data-wow-delay="0.1s">
-                    <h6 class="text-secondary text-uppercase">Get In Touch</h6>
-                    <h1 class="mb-4">Contact For Any Query</h1>
-                    <p class="mb-4">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a href="https://htmlcodex.com/contact-form">Download Now</a>.</p>
-                    <div class="bg-light p-4">
-                        <form>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="name" placeholder="Your Name">
-                                        <label for="name">Your Name</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="email" class="form-control" id="email" placeholder="Your Email">
-                                        <label for="email">Your Email</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="subject" placeholder="Subject">
-                                        <label for="subject">Subject</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Leave a message here" id="message" style="height: 100px"></textarea>
-                                        <label for="message">Message</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn btn-primary w-100 py-3" type="submit">Send Message</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+    <!-- Testimonial Start -->
+    <div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="container ">
+            <div class="container ">
+    <h2 class="text-center mb-4">Update Parcel Status</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="statusUpdateForm">
+                <div class="mb-3">
+                    <label for="trackingId" class="form-label">Tracking ID</label>
+                    <input type="text" class="form-control" id="trackingId" placeholder="Enter Tracking ID" required>
                 </div>
-                <div class="col-md-6 pe-lg-0 wow fadeInRight" data-wow-delay="0.1s">
-                    <div class="position-relative h-100">
-                        <iframe class="position-absolute w-100 h-100" style="object-fit: cover;"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2413178.2716629565!2d77.208985!3d28.6139391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce36ecb2f5887%3A0xa0baf6ecb7a51c97!2sIndia!5e0!3m2!1sen!2sin!4v1720700000000!5m2!1sen!2sin"
-                        frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0">
-                    </iframe>
-
-                    </div>
+                <div class="mb-3">
+                    <label for="newStatus" class="form-label">New Status</label>
+                    <select class="form-select" id="newStatus" required>
+                        <option value="">Select Status</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Returned">Returned</option>
+                    </select>
                 </div>
-            </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+            <div id="updateMessage" class="mt-3"></div>
         </div>
     </div>
-    <!-- Contact End -->
-
+</div>
+        </div>
+    </div>
+    <!-- Testimonial End -->
+        
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-light footer pt-5 wow fadeIn" data-wow-delay="0.1s" style="margin-top: 6rem;">
@@ -220,6 +200,32 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script>
+    const dummyShipments = [
+        { id: 'PKG123', user: 'Ankit Sharma', status: 'Shipped' },
+        { id: 'PKG456', user: 'Priya Verma', status: 'In Transit' },
+        { id: 'PKG789', user: 'Rajesh Kumar', status: 'Delivered' }
+    ];
+
+    document.getElementById('statusUpdateForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const id = document.getElementById('trackingId').value.trim();
+        const newStatus = document.getElementById('newStatus').value;
+        const messageDiv = document.getElementById('updateMessage');
+
+        const shipment = dummyShipments.find(pkg => pkg.id === id);
+
+        if (shipment) {
+            shipment.status = newStatus;
+            messageDiv.innerHTML = `<div class="alert alert-success">Status updated to <strong>${newStatus}</strong> for <strong>${id}</strong></div>`;
+        } else {
+            messageDiv.innerHTML = `<div class="alert alert-danger">Tracking ID <strong>${id}</strong> not found.</div>`;
+        }
+
+        document.getElementById('statusUpdateForm').reset();
+    });
+</script>
 </body>
 
 </html>
