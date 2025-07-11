@@ -43,6 +43,9 @@ const ProviderSchema = new mongoose.Schema(
     rejectionReason: {
       type: String,
     },
+    rejectedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
