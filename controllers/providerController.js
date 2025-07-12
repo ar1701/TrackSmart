@@ -683,11 +683,11 @@ const updateShipmentStatus = async (req, res) => {
     // Valid shipment statuses
     const validStatuses = [
       "picked_up",
-      "in_transit", 
+      "in_transit",
       "out_for_delivery",
       "delivered",
       "failed_delivery",
-      "returned"
+      "returned",
     ];
 
     if (!validStatuses.includes(status)) {

@@ -31,15 +31,20 @@ async function debugProviderIdMatching() {
 
     console.log("✅ Login successful!");
     console.log("Session user data:", loginResponse.data.data.user);
-    
+
     // Extract session cookie
     const cookies = loginResponse.headers["set-cookie"];
     const cookieHeader = cookies ? cookies.join("; ") : "";
 
     // Step 2: Check what provider ID is being used
-    console.log("\n2️⃣ Checking what provider ID would be used in getProviderRequests...");
+    console.log(
+      "\n2️⃣ Checking what provider ID would be used in getProviderRequests..."
+    );
     console.log("Session user ID:", loginResponse.data.data.user.id);
-    console.log("Session user providerId:", loginResponse.data.data.user.providerId);
+    console.log(
+      "Session user providerId:",
+      loginResponse.data.data.user.providerId
+    );
     console.log("Session user type:", loginResponse.data.data.user.type);
 
     // Step 3: Check the actual provider in database
@@ -47,46 +52,60 @@ async function debugProviderIdMatching() {
     const Provider = require("./model/provider");
     const { ShipmentRequest } = require("./model/providerQuote");
     const connectDB = require("./utils/connectToDB");
-    
+
     await connectDB();
-    
+
     const provider = await Provider.findOne({ bppId: "TS000018" });
     if (provider) {
       console.log("Provider in DB:");
       console.log("  _id:", provider._id.toString());
       console.log("  name:", provider.name);
       console.log("  bppId:", provider.bppId);
-      
+
       // Check if session ID matches DB ID
       const sessionProviderId = loginResponse.data.data.user.id;
       const dbProviderId = provider._id.toString();
-      
+
       console.log("\n4️⃣ ID Comparison:");
       console.log("Session ID:", sessionProviderId);
       console.log("Database ID:", dbProviderId);
       console.log("IDs match:", sessionProviderId === dbProviderId);
-      
+
       // Check shipment requests using both IDs
       console.log("\n5️⃣ Checking shipment requests:");
-      const requestsWithSessionId = await ShipmentRequest.find({ providerId: sessionProviderId });
-      const requestsWithDbId = await ShipmentRequest.find({ providerId: dbProviderId });
-      
-      console.log(`Requests with session ID (${sessionProviderId}):`, requestsWithSessionId.length);
-      console.log(`Requests with database ID (${dbProviderId}):`, requestsWithDbId.length);
-      
+      const requestsWithSessionId = await ShipmentRequest.find({
+        providerId: sessionProviderId,
+      });
+      const requestsWithDbId = await ShipmentRequest.find({
+        providerId: dbProviderId,
+      });
+
+      console.log(
+        `Requests with session ID (${sessionProviderId}):`,
+        requestsWithSessionId.length
+      );
+      console.log(
+        `Requests with database ID (${dbProviderId}):`,
+        requestsWithDbId.length
+      );
+
       // Show all requests for this provider
-      const allRequests = await ShipmentRequest.find({ providerId: provider._id });
+      const allRequests = await ShipmentRequest.find({
+        providerId: provider._id,
+      });
       console.log(`\n6️⃣ All requests for this provider:`, allRequests.length);
       allRequests.forEach((req, index) => {
-        console.log(`  ${index + 1}. ID: ${req._id}, Status: ${req.status}, Cost: ₹${req.requestedCost}`);
+        console.log(
+          `  ${index + 1}. ID: ${req._id}, Status: ${req.status}, Cost: ₹${
+            req.requestedCost
+          }`
+        );
       });
-      
     } else {
       console.log("❌ Provider not found in database");
     }
 
     process.exit(0);
-
   } catch (error) {
     console.error("❌ Error:", error.message);
     if (error.response) {

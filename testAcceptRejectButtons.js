@@ -30,7 +30,7 @@ async function testAcceptRejectButtons() {
     }
 
     console.log("✅ Login successful!");
-    
+
     // Extract session cookie
     const cookies = loginResponse.headers["set-cookie"];
     const cookieHeader = cookies ? cookies.join("; ") : "";
@@ -49,7 +49,7 @@ async function testAcceptRejectButtons() {
     );
 
     console.log("Response status:", requestsResponse.status);
-    
+
     if (requestsResponse.status !== 200) {
       console.log("❌ Failed to fetch requests:", requestsResponse.data);
       return;
@@ -65,14 +65,18 @@ async function testAcceptRejectButtons() {
     }
 
     // Step 3: Find a pending request to test
-    const pendingRequests = requests.filter(r => r.status === 'pending');
+    const pendingRequests = requests.filter((r) => r.status === "pending");
     console.log(`Found ${pendingRequests.length} pending requests`);
 
     if (pendingRequests.length === 0) {
-      console.log("⚠️  No pending requests to test accept/reject functionality");
+      console.log(
+        "⚠️  No pending requests to test accept/reject functionality"
+      );
       console.log("Available requests:");
       requests.forEach((req, index) => {
-        console.log(`  ${index + 1}. ID: ${req.id || req._id}, Status: ${req.status}`);
+        console.log(
+          `  ${index + 1}. ID: ${req.id || req._id}, Status: ${req.status}`
+        );
       });
       return;
     }
@@ -84,10 +88,10 @@ async function testAcceptRejectButtons() {
     // Step 4: Test accept endpoint
     const acceptResponse = await axios.post(
       `http://localhost:4000/api/providers/requests/${requestId}/accept`,
-      { 
+      {
         actualCost: 500,
         providerNotes: "Test acceptance",
-        actualDeliveryTime: 2
+        actualDeliveryTime: 2,
       },
       {
         headers: {
@@ -114,13 +118,15 @@ async function testAcceptRejectButtons() {
     if (pendingRequests.length > 1) {
       const rejectTestRequest = pendingRequests[1];
       const rejectRequestId = rejectTestRequest.id || rejectTestRequest._id;
-      
-      console.log(`\n4️⃣ Testing reject functionality with request: ${rejectRequestId}`);
-      
+
+      console.log(
+        `\n4️⃣ Testing reject functionality with request: ${rejectRequestId}`
+      );
+
       const rejectResponse = await axios.post(
         `http://localhost:4000/api/providers/requests/${rejectRequestId}/reject`,
-        { 
-          rejectionReason: "Test rejection - not available for this route"
+        {
+          rejectionReason: "Test rejection - not available for this route",
         },
         {
           headers: {
@@ -142,7 +148,6 @@ async function testAcceptRejectButtons() {
         console.log("   Message:", rejectResponse.data.message);
       }
     }
-
   } catch (error) {
     console.error("❌ Test failed:", error.message);
     if (error.response) {

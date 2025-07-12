@@ -143,12 +143,12 @@ const ShipmentSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.Types.ObjectId,
-          refPath: 'statusHistory.updatedByType',
+          refPath: "statusHistory.updatedByType",
         },
         updatedByType: {
           type: String,
-          enum: ['Seller', 'Provider', 'System'],
-          default: 'System',
+          enum: ["Seller", "Provider", "System"],
+          default: "System",
         },
         notes: {
           type: String,
@@ -293,9 +293,9 @@ ShipmentSchema.pre("save", function (next) {
       status: this.status,
       timestamp: new Date(),
       updatedBy: this._statusUpdatedBy || null,
-      updatedByType: this._statusUpdatedByType || 'System',
-      notes: this._statusNotes || '',
-      trackingNumber: this.trackingNumber || '',
+      updatedByType: this._statusUpdatedByType || "System",
+      notes: this._statusNotes || "",
+      trackingNumber: this.trackingNumber || "",
     });
 
     // Clean up temporary fields

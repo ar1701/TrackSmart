@@ -551,7 +551,12 @@ class ProviderQuoteService {
   }
 
   // Update shipment status for tracking
-  async updateShipmentStatus(requestId, providerId, status, additionalData = {}) {
+  async updateShipmentStatus(
+    requestId,
+    providerId,
+    status,
+    additionalData = {}
+  ) {
     try {
       const request = await ShipmentRequest.findOne({
         _id: requestId,
@@ -568,15 +573,15 @@ class ProviderQuoteService {
 
       // Get the shipment document
       const shipment = await Shipment.findById(request.shipmentId._id);
-      
+
       if (!shipment) {
         throw new Error("Shipment not found");
       }
 
       // Set temporary fields for the middleware to use
       shipment._statusUpdatedBy = providerId;
-      shipment._statusUpdatedByType = 'Provider';
-      shipment._statusNotes = additionalData.notes || '';
+      shipment._statusUpdatedByType = "Provider";
+      shipment._statusNotes = additionalData.notes || "";
 
       // Update shipment status
       shipment.status = status;

@@ -50,9 +50,9 @@ async function testAcceptRejectComprehensive() {
     console.log(`✅ Found ${requests.length} total requests`);
 
     // Categorize requests by status
-    const pendingRequests = requests.filter(r => r.status === 'pending');
-    const acceptedRequests = requests.filter(r => r.status === 'accepted');
-    const rejectedRequests = requests.filter(r => r.status === 'rejected');
+    const pendingRequests = requests.filter((r) => r.status === "pending");
+    const acceptedRequests = requests.filter((r) => r.status === "accepted");
+    const rejectedRequests = requests.filter((r) => r.status === "rejected");
 
     console.log(`   - Pending: ${pendingRequests.length}`);
     console.log(`   - Accepted: ${acceptedRequests.length}`);
@@ -61,14 +61,16 @@ async function testAcceptRejectComprehensive() {
     // Step 3: Test Accept functionality (if pending requests exist)
     if (pendingRequests.length > 0) {
       const testRequest = pendingRequests[0];
-      console.log(`\n3️⃣ Testing ACCEPT functionality with request: ${testRequest.requestId}`);
-      
+      console.log(
+        `\n3️⃣ Testing ACCEPT functionality with request: ${testRequest.requestId}`
+      );
+
       const acceptResponse = await axios.post(
         `http://localhost:4000/api/providers/requests/${testRequest.id}/accept`,
-        { 
+        {
           actualCost: 450,
           providerNotes: "Automated test acceptance",
-          actualDeliveryTime: 24
+          actualDeliveryTime: 24,
         },
         {
           headers: { Cookie: cookieHeader, "Content-Type": "application/json" },
@@ -78,26 +80,32 @@ async function testAcceptRejectComprehensive() {
 
       if (acceptResponse.status === 200 && acceptResponse.data.success) {
         console.log("✅ ACCEPT API working correctly!");
-        console.log(`   Request ${testRequest.requestId} accepted successfully`);
+        console.log(
+          `   Request ${testRequest.requestId} accepted successfully`
+        );
       } else {
         console.log("❌ ACCEPT API failed:");
         console.log(`   Status: ${acceptResponse.status}`);
         console.log(`   Response: ${JSON.stringify(acceptResponse.data)}`);
       }
     } else {
-      console.log("\n3️⃣ No pending requests available to test ACCEPT functionality");
+      console.log(
+        "\n3️⃣ No pending requests available to test ACCEPT functionality"
+      );
     }
 
     // Step 4: Test Reject functionality (if more pending requests exist)
-    const remainingPending = requests.filter(r => r.status === 'pending');
+    const remainingPending = requests.filter((r) => r.status === "pending");
     if (remainingPending.length > 0) {
       const testRequest = remainingPending[0];
-      console.log(`\n4️⃣ Testing REJECT functionality with request: ${testRequest.requestId}`);
-      
+      console.log(
+        `\n4️⃣ Testing REJECT functionality with request: ${testRequest.requestId}`
+      );
+
       const rejectResponse = await axios.post(
         `http://localhost:4000/api/providers/requests/${testRequest.id}/reject`,
-        { 
-          rejectionReason: "Automated test rejection - route not available"
+        {
+          rejectionReason: "Automated test rejection - route not available",
         },
         {
           headers: { Cookie: cookieHeader, "Content-Type": "application/json" },
@@ -107,14 +115,18 @@ async function testAcceptRejectComprehensive() {
 
       if (rejectResponse.status === 200 && rejectResponse.data.success) {
         console.log("✅ REJECT API working correctly!");
-        console.log(`   Request ${testRequest.requestId} rejected successfully`);
+        console.log(
+          `   Request ${testRequest.requestId} rejected successfully`
+        );
       } else {
         console.log("❌ REJECT API failed:");
         console.log(`   Status: ${rejectResponse.status}`);
         console.log(`   Response: ${JSON.stringify(rejectResponse.data)}`);
       }
     } else {
-      console.log("\n4️⃣ No more pending requests available to test REJECT functionality");
+      console.log(
+        "\n4️⃣ No more pending requests available to test REJECT functionality"
+      );
     }
 
     // Step 5: Verify final state
@@ -127,9 +139,9 @@ async function testAcceptRejectComprehensive() {
     );
 
     const finalRequests = finalResponse.data.data.requests;
-    const finalPending = finalRequests.filter(r => r.status === 'pending');
-    const finalAccepted = finalRequests.filter(r => r.status === 'accepted');
-    const finalRejected = finalRequests.filter(r => r.status === 'rejected');
+    const finalPending = finalRequests.filter((r) => r.status === "pending");
+    const finalAccepted = finalRequests.filter((r) => r.status === "accepted");
+    const finalRejected = finalRequests.filter((r) => r.status === "rejected");
 
     console.log("Final status counts:");
     console.log(`   - Pending: ${finalPending.length}`);
@@ -144,11 +156,19 @@ async function testAcceptRejectComprehensive() {
     console.log("   - GET /api/providers/requests ✅ Working");
 
     console.log("\n📋 Frontend Requirements Check:");
-    console.log("✅ Accept button should call: handleRequest(requestId, 'accept')");
-    console.log("✅ Reject button should call: handleRequest(requestId, 'reject')");
-    console.log("✅ Modal should open for user input (actualCost, rejectionReason)");
+    console.log(
+      "✅ Accept button should call: handleRequest(requestId, 'accept')"
+    );
+    console.log(
+      "✅ Reject button should call: handleRequest(requestId, 'reject')"
+    );
+    console.log(
+      "✅ Modal should open for user input (actualCost, rejectionReason)"
+    );
     console.log("✅ Form submission should call processRequest() function");
-    console.log("✅ processRequest() should make fetch() call to correct API endpoint");
+    console.log(
+      "✅ processRequest() should make fetch() call to correct API endpoint"
+    );
 
     console.log("\n🔧 Troubleshooting Steps for Frontend Issues:");
     console.log("1. Open browser Developer Tools (F12)");
@@ -160,9 +180,12 @@ async function testAcceptRejectComprehensive() {
     console.log("7. Check if form submission triggers API call");
 
     console.log("\n🎉 BACKEND FUNCTIONALITY: ✅ FULLY WORKING");
-    console.log("🎯 ISSUE: Frontend buttons may have JavaScript errors or modal issues");
-    console.log("📱 SOLUTION: Check browser console for errors and ensure Bootstrap modals are working");
-
+    console.log(
+      "🎯 ISSUE: Frontend buttons may have JavaScript errors or modal issues"
+    );
+    console.log(
+      "📱 SOLUTION: Check browser console for errors and ensure Bootstrap modals are working"
+    );
   } catch (error) {
     console.error("❌ Test failed:", error.message);
     if (error.response) {
