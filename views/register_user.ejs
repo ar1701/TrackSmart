@@ -1,0 +1,384 @@
+<%- include('partials/header') %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      User Registration
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="text-white" href="/">Home</a></li>
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/main-login">Login</a>
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Register
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Registration Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+      <h6 class="text-secondary text-uppercase">Join TrackSmart</h6>
+      <h1 class="mb-5">Create Your Account</h1>
+      <p class="mb-5">
+        Register as an individual user to track your shipments and manage your
+        orders.
+      </p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="bg-light rounded p-5">
+          <div id="alertContainer"></div>
+
+          <form id="registrationForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="firstName" class="form-label">First Name *</label>
+                <input
+                  type="text"
+                  class="form-control border-0"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Enter your first name"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label for="lastName" class="form-label">Last Name *</label>
+                <input
+                  type="text"
+                  class="form-control border-0"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Enter your last name"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-12">
+                <label for="email" class="form-label">Email Address *</label>
+                <input
+                  type="email"
+                  class="form-control border-0"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-12">
+                <label for="username" class="form-label">Username *</label>
+                <input
+                  type="text"
+                  class="form-control border-0"
+                  id="username"
+                  name="username"
+                  placeholder="Choose a username"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-12">
+                <label for="phoneNumber" class="form-label"
+                  >Phone Number *</label
+                >
+                <input
+                  type="tel"
+                  class="form-control border-0"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  placeholder="Enter your phone number"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-12">
+                <label for="password" class="form-label">Password *</label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control border-0"
+                    id="password"
+                    name="password"
+                    placeholder="Create a secure password"
+                    style="height: 55px"
+                    required
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="togglePassword"
+                    style="height: 55px"
+                  >
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+                <small class="text-muted"
+                  >Password must be at least 6 characters long</small
+                >
+              </div>
+
+              <div class="col-12">
+                <label for="confirmPassword" class="form-label"
+                  >Confirm Password *</label
+                >
+                <input
+                  type="password"
+                  class="form-control border-0"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label for="dateOfBirth" class="form-label"
+                  >Date of Birth (Optional)</label
+                >
+                <input
+                  type="date"
+                  class="form-control border-0"
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  style="height: 55px"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label for="city" class="form-label">City (Optional)</label>
+                <input
+                  type="text"
+                  class="form-control border-0"
+                  id="city"
+                  name="city"
+                  placeholder="Your city"
+                  style="height: 55px"
+                />
+              </div>
+
+              <div class="col-12">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="agreeTerms"
+                    name="agreeTerms"
+                    required
+                  />
+                  <label class="form-check-label" for="agreeTerms">
+                    I agree to the
+                    <a href="#" class="text-primary">Terms of Service</a> and
+                    <a href="#" class="text-primary">Privacy Policy</a> *
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="emailNotifications"
+                    name="emailNotifications"
+                    checked
+                  />
+                  <label class="form-check-label" for="emailNotifications">
+                    I want to receive email notifications about my shipments
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button
+                  class="btn btn-primary w-100 py-3"
+                  type="submit"
+                  id="registerBtn"
+                >
+                  <i class="fa fa-user-plus me-2"></i>Create Account
+                </button>
+              </div>
+
+              <div class="col-12 text-center">
+                <p class="mb-0">
+                  Already have an account?
+                  <a href="/main-login" class="text-primary">Login here</a>
+                </p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Registration End -->
+
+<!-- Custom Styles -->
+<style>
+  .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-group .btn {
+    border-radius: 0 8px 8px 0;
+  }
+
+  #alertContainer .alert {
+    border-radius: 8px;
+    border: none;
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<!-- JavaScript -->
+<script>
+  // Toggle password visibility
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const passwordField = document.getElementById("password");
+      const toggleIcon = this.querySelector("i");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.className = "fa fa-eye-slash";
+      } else {
+        passwordField.type = "password";
+        toggleIcon.className = "fa fa-eye";
+      }
+    });
+
+  // Handle form submission
+  document
+    .getElementById("registrationForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+      const alertContainer = document.getElementById("alertContainer");
+      const registerBtn = document.getElementById("registerBtn");
+
+      // Validate password confirmation
+      if (data.password !== data.confirmPassword) {
+        alertContainer.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa fa-exclamation-triangle me-2"></i>
+          <strong>Error!</strong> Passwords do not match.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+        return;
+      }
+
+      // Show loading state
+      registerBtn.disabled = true;
+      registerBtn.innerHTML =
+        '<i class="fa fa-spinner fa-spin me-2"></i>Creating Account...';
+
+      try {
+        const response = await fetch("/api/users/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            username: data.username,
+            password: data.password,
+            phoneNumber: data.phoneNumber,
+            dateOfBirth: data.dateOfBirth || null,
+            address: {
+              city: data.city || "",
+            },
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success message
+          alertContainer.innerHTML = `
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle me-2"></i>
+            <strong>Success!</strong> Account created successfully! Please check your email for verification.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        `;
+
+          // Reset form
+          this.reset();
+
+          // Redirect to login after a delay
+          setTimeout(() => {
+            window.location.href = "/main-login";
+          }, 3000);
+        } else {
+          // Show error message
+          alertContainer.innerHTML = `
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            <strong>Error!</strong> ${
+              result.message || "Registration failed. Please try again."
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        `;
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        alertContainer.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa fa-exclamation-triangle me-2"></i>
+          <strong>Error!</strong> Network error. Please try again later.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+      } finally {
+        // Reset button state
+        registerBtn.disabled = false;
+        registerBtn.innerHTML =
+          '<i class="fa fa-user-plus me-2"></i>Create Account';
+      }
+    });
+</script>
+
+<%- include('partials/footer') %>

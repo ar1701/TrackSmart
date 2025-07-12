@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TrackSmart</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      
+      .admin-navbar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+      }
+      
+      .admin-navbar .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: white !important;
+      }
+      
+      .main-content {
+        padding: 2rem 0;
+      }
+      
+      .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border: none;
+        transition: transform 0.3s ease;
+        margin-bottom: 1.5rem;
+        height: 100%;
+      }
+      
+      .stats-card:hover {
+        transform: translateY(-5px);
+      }
+      
+      .stats-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      .provider-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+      }
+      
+      .status-badge {
+        font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  
+  .status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-verified {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .btn-action {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+  }
+  
+  .table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .table td {
+    border: none;
+    vertical-align: middle;
+    padding: 1rem 0.75rem;
+  }
+  
+  .table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .nav-pills .nav-link {
+    border-radius: 25px;
+    margin: 0 0.25rem;
+    padding: 0.5rem 1.5rem;
+  }
+  
+  .nav-pills .nav-link.active {
+    background-color: #667eea;
+  }
+  
+  .alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+  }
+  
+  .loading-spinner {
+    display: none;
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .modal-header .btn-close {
+    filter: invert(1);
+  }
+</style>
+
+<!-- Admin Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark admin-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/admin/dashboard">
+      <i class="fas fa-shield-alt me-2"></i>TrackSmart Admin
+    </a>
+
+    <div class="navbar-nav ms-auto">
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-shield me-1"></i><%= admin?.name || 'Admin' %>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+          <li><hr class="dropdown-divider" /></li>
+          <li><a class="dropdown-item" href="/main-login"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Alert Container -->
+<div class="alert-container" id="alertContainer"></div>
+
+<!-- Main Content -->
+<div class="container main-content">
+  <!-- Welcome Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-3">Welcome back, <%= admin?.name || 'Admin' %>!</h2>
+      <p class="text-muted">Manage providers and oversee the TrackSmart logistics platform</p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stats-card text-center">
+        <i class="fas fa-truck stats-icon text-primary"></i>
+        <h4 class="mb-2" id="totalProviders">0</h4>
+        <p class="text-muted mb-0">Total Providers</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card text-center">
+        <i class="fas fa-clock stats-icon text-warning"></i>
+        <h4 class="mb-2" id="pendingRequests">0</h4>
+        <p class="text-muted mb-0">Pending Requests</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card text-center">
+        <i class="fas fa-check-circle stats-icon text-success"></i>
+        <h4 class="mb-2" id="verifiedProviders">0</h4>
+        <p class="text-muted mb-0">Verified Providers</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card text-center">
+        <i class="fas fa-times-circle stats-icon text-danger"></i>
+        <h4 class="mb-2" id="rejectedProviders">0</h4>
+        <p class="text-muted mb-0">Rejected Providers</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider Management Section -->
+  <div class="provider-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="mb-0">
+        <i class="fas fa-users me-2"></i>Provider Management
+      </h4>
+      <button class="btn btn-primary" onclick="refreshData()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4" id="providerTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="onboarding-tab" data-bs-toggle="pill" data-bs-target="#onboarding" type="button" role="tab">
+          <i class="fas fa-hourglass-half me-2"></i>Onboarding Requests
+          <span class="badge bg-warning ms-2" id="onboardingCount">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="verified-tab" data-bs-toggle="pill" data-bs-target="#verified" type="button" role="tab">
+          <i class="fas fa-check-circle me-2"></i>Verified Providers
+          <span class="badge bg-success ms-2" id="verifiedCount">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="pill" data-bs-target="#rejected" type="button" role="tab">
+          <i class="fas fa-times-circle me-2"></i>Rejected Providers
+          <span class="badge bg-danger ms-2" id="rejectedCount">0</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="providerTabContent">
+      <!-- Onboarding Requests Tab -->
+      <div class="tab-pane fade show active" id="onboarding" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="onboardingLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading onboarding requests...</p>
+        </div>
+        
+        <div class="table-responsive" id="onboardingTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Provider Details</th>
+                <th>Contact</th>
+                <th>Service Info</th>
+                <th>Requested On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="onboardingTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="onboardingEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No pending onboarding requests</p>
+        </div>
+      </div>
+
+      <!-- Verified Providers Tab -->
+      <div class="tab-pane fade" id="verified" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="verifiedLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading verified providers...</p>
+        </div>
+        
+        <div class="table-responsive" id="verifiedTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Provider Details</th>
+                <th>Contact</th>
+                <th>Service Coverage</th>
+                <th>Verified On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="verifiedTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="verifiedEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No verified providers yet</p>
+        </div>
+      </div>
+
+      <!-- Rejected Providers Tab -->
+      <div class="tab-pane fade" id="rejected" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="rejectedLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading rejected providers...</p>
+        </div>
+        
+        <div class="table-responsive" id="rejectedTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Provider Details</th>
+                <th>Contact</th>
+                <th>Rejection Reason</th>
+                <th>Rejected On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rejectedTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="rejectedEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No rejected providers</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Provider Details Modal -->
+<div class="modal fade" id="providerModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-truck me-2"></i>Provider Details
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="providerModalBody">
+        <!-- Dynamic content -->
+      </div>
+      <div class="modal-footer" id="providerModalFooter">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Provider Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-times-circle me-2"></i>Reject Provider
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Please provide a reason for rejecting this provider application:</p>
+        <textarea class="form-control" id="rejectReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+        <input type="hidden" id="rejectBppId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmReject()">
+          <i class="fas fa-times me-2"></i>Reject Provider
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global variables
+let onboardingData = [];
+let verifiedData = [];
+let rejectedData = [];
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  loadDashboardData();
+  
+  // Tab change events
+  document.getElementById('onboarding-tab').addEventListener('shown.bs.tab', function() {
+    if (onboardingData.length === 0) loadOnboardingRequests();
+  });
+  
+  document.getElementById('verified-tab').addEventListener('shown.bs.tab', function() {
+    if (verifiedData.length === 0) loadVerifiedProviders();
+  });
+  
+  document.getElementById('rejected-tab').addEventListener('shown.bs.tab', function() {
+    if (rejectedData.length === 0) loadRejectedProviders();
+  });
+});
+
+// Load dashboard statistics and initial data
+async function loadDashboardData() {
+  await loadOnboardingRequests();
+  updateStatistics();
+}
+
+// Refresh all data
+async function refreshData() {
+  onboardingData = [];
+  verifiedData = [];
+  rejectedData = [];
+  
+  // Show loading spinners
+  showLoadingSpinner('onboardingLoading');
+  showLoadingSpinner('verifiedLoading');
+  showLoadingSpinner('rejectedLoading');
+  
+  await Promise.all([
+    loadOnboardingRequests(),
+    loadVerifiedProviders(),
+    loadRejectedProviders()
+  ]);
+  
+  updateStatistics();
+  showAlert('success', 'Data refreshed successfully!');
+}
+
+// Load onboarding requests
+async function loadOnboardingRequests() {
+  try {
+    showLoadingSpinner('onboardingLoading');
+    
+    const response = await fetch('/api/providers/onboard-requests');
+    const result = await response.json();
+    
+    if (result.success) {
+      onboardingData = result.data.providers;
+      renderOnboardingTable();
+    } else {
+      showAlert('error', 'Failed to load onboarding requests');
+    }
+  } catch (error) {
+    console.error('Error loading onboarding requests:', error);
+    showAlert('error', 'Failed to load onboarding requests');
+  } finally {
+    hideLoadingSpinner('onboardingLoading');
+  }
+}
+
+// Load verified providers
+async function loadVerifiedProviders() {
+  try {
+    showLoadingSpinner('verifiedLoading');
+    
+    const response = await fetch('/api/providers/verified');
+    const result = await response.json();
+    
+    if (result.success) {
+      verifiedData = result.data.providers;
+      renderVerifiedTable();
+    } else {
+      showAlert('error', 'Failed to load verified providers');
+    }
+  } catch (error) {
+    console.error('Error loading verified providers:', error);
+    showAlert('error', 'Failed to load verified providers');
+  } finally {
+    hideLoadingSpinner('verifiedLoading');
+  }
+}
+
+// Load rejected providers
+async function loadRejectedProviders() {
+  try {
+    showLoadingSpinner('rejectedLoading');
+    
+    const response = await fetch('/api/providers/rejected');
+    const result = await response.json();
+    
+    if (result.success) {
+      rejectedData = result.data;
+      renderRejectedTable();
+    } else {
+      showAlert('error', 'Failed to load rejected providers');
+    }
+  } catch (error) {
+    console.error('Error loading rejected providers:', error);
+    showAlert('error', 'Failed to load rejected providers');
+  } finally {
+    hideLoadingSpinner('rejectedLoading');
+  }
+}
+
+// Render onboarding requests table
+function renderOnboardingTable() {
+  const tbody = document.getElementById('onboardingTableBody');
+  const table = document.getElementById('onboardingTable');
+  const empty = document.getElementById('onboardingEmpty');
+  
+  if (onboardingData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = onboardingData.map(provider => `
+    <tr>
+      <td>
+        <div>
+          <strong>${provider.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${provider.bppId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${provider.email}
+          ${provider.hasBaseUri ? `<br><small class="text-muted"><i class="fas fa-link me-1"></i>Has API URI</small>` : ''}
+        </div>
+      </td>
+      <td>
+        <div>
+          <small class="text-muted">Pincodes: ${provider.supportedPincodes?.length || 0}</small>
+          <br>
+          <small class="text-muted">Actions: ${provider.actions?.length || 0}</small>
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(provider.createdAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-info btn-action" onclick="viewProvider('${provider.bppId}', 'onboarding')">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="btn btn-sm btn-success btn-action" onclick="verifyProvider('${provider.bppId}')">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="btn btn-sm btn-danger btn-action" onclick="showRejectModal('${provider.bppId}')">
+          <i class="fas fa-times"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+// Render verified providers table
+function renderVerifiedTable() {
+  const tbody = document.getElementById('verifiedTableBody');
+  const table = document.getElementById('verifiedTable');
+  const empty = document.getElementById('verifiedEmpty');
+  
+  if (verifiedData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = verifiedData.map(provider => `
+    <tr>
+      <td>
+        <div>
+          <strong>${provider.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${provider.bppId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${provider.email}
+          ${provider.hasBaseUri ? `<br><small class="text-muted"><i class="fas fa-link me-1"></i>API Connected</small>` : ''}
+        </div>
+      </td>
+      <td>
+        <div>
+          <small class="text-muted">Coverage: ${provider.supportedPincodes || 0} areas</small>
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(provider.verifiedAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <span class="status-badge status-verified">
+          <i class="fas fa-check-circle me-1"></i>Active
+        </span>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+// Render rejected providers table
+function renderRejectedTable() {
+  const tbody = document.getElementById('rejectedTableBody');
+  const table = document.getElementById('rejectedTable');
+  const empty = document.getElementById('rejectedEmpty');
+  
+  if (!rejectedData || rejectedData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = rejectedData.map(provider => `
+    <tr>
+      <td>
+        <div>
+          <strong>${provider.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${provider.bppId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${provider.email}
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${provider.rejectionReason || 'No reason provided'}</small>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(provider.rejectedAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-info btn-action" onclick="viewProvider('${provider.bppId}', 'rejected')">
+          <i class="fas fa-eye"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+// Update statistics
+function updateStatistics() {
+  const totalProviders = onboardingData.length + verifiedData.length + (rejectedData?.length || 0);
+  
+  document.getElementById('totalProviders').textContent = totalProviders;
+  document.getElementById('pendingRequests').textContent = onboardingData.length;
+  document.getElementById('verifiedProviders').textContent = verifiedData.length;
+  document.getElementById('rejectedProviders').textContent = rejectedData?.length || 0;
+  
+  // Update tab badges
+  document.getElementById('onboardingCount').textContent = onboardingData.length;
+  document.getElementById('verifiedCount').textContent = verifiedData.length;
+  document.getElementById('rejectedCount').textContent = rejectedData?.length || 0;
+}
+
+// View provider details
+function viewProvider(bppId, type) {
+  let provider;
+  
+  if (type === 'onboarding') {
+    provider = onboardingData.find(p => p.bppId === bppId);
+  } else if (type === 'verified') {
+    provider = verifiedData.find(p => p.bppId === bppId);
+  } else if (type === 'rejected') {
+    provider = rejectedData.find(p => p.bppId === bppId);
+  }
+  
+  if (!provider) {
+    showAlert('error', 'Provider not found');
+    return;
+  }
+  
+  const modalBody = document.getElementById('providerModalBody');
+  const modalFooter = document.getElementById('providerModalFooter');
+  
+  modalBody.innerHTML = `
+    <div class="row">
+      <div class="col-md-6">
+        <h6><i class="fas fa-building me-2"></i>Company Information</h6>
+        <p><strong>Name:</strong> ${provider.name}</p>
+        <p><strong>Email:</strong> ${provider.email}</p>
+        <p><strong>Provider ID:</strong> ${provider.bppId}</p>
+        ${provider.hasBaseUri ? `<p><strong>API URI:</strong> <code>${provider.baseUri}</code></p>` : '<p><em>No API URI configured</em></p>'}
+      </div>
+      <div class="col-md-6">
+        <h6><i class="fas fa-cogs me-2"></i>Service Configuration</h6>
+        <p><strong>Supported Actions:</strong> ${provider.actions?.length || 0}</p>
+        ${provider.actions?.length ? `<div class="mb-2">${provider.actions.map(action => `<span class="badge bg-secondary me-1">${action}</span>`).join('')}</div>` : ''}
+        <p><strong>Coverage Areas:</strong> ${provider.supportedPincodes?.length || 0} pincodes</p>
+        ${provider.supportedPincodes?.length ? `<div class="mb-2">${provider.supportedPincodes.slice(0, 10).map(pincode => `<span class="badge bg-info me-1">${pincode}</span>`).join('')}${provider.supportedPincodes.length > 10 ? `<span class="text-muted">... +${provider.supportedPincodes.length - 10} more</span>` : ''}</div>` : ''}
+      </div>
+    </div>
+    
+    ${provider.weightLimits || provider.dimensionalLimits ? `
+    <hr>
+    <div class="row">
+      <div class="col-md-6">
+        <h6><i class="fas fa-weight me-2"></i>Weight Limits</h6>
+        <p>${provider.weightLimits ? `${provider.weightLimits.min}kg - ${provider.weightLimits.max}kg` : 'Not specified'}</p>
+      </div>
+      <div class="col-md-6">
+        <h6><i class="fas fa-cube me-2"></i>Dimensional Limits</h6>
+        <p>${provider.dimensionalLimits ? `${provider.dimensionalLimits.l} x ${provider.dimensionalLimits.w} x ${provider.dimensionalLimits.h} cm` : 'Not specified'}</p>
+      </div>
+    </div>
+    ` : ''}
+    
+    <hr>
+    <div class="row">
+      <div class="col-12">
+        <h6><i class="fas fa-clock me-2"></i>Timeline</h6>
+        <p><strong>Application Date:</strong> ${new Date(provider.createdAt).toLocaleString()}</p>
+        ${provider.verifiedAt ? `<p><strong>Verified Date:</strong> ${new Date(provider.verifiedAt).toLocaleString()}</p>` : ''}
+        ${provider.rejectedAt ? `<p><strong>Rejected Date:</strong> ${new Date(provider.rejectedAt).toLocaleString()}</p>` : ''}
+        ${provider.rejectionReason ? `<p><strong>Rejection Reason:</strong> ${provider.rejectionReason}</p>` : ''}
+      </div>
+    </div>
+  `;
+  
+  // Set modal footer based on provider type
+  if (type === 'onboarding') {
+    modalFooter.innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-danger" onclick="showRejectModal('${provider.bppId}')" data-bs-dismiss="modal">
+        <i class="fas fa-times me-2"></i>Reject
+      </button>
+      <button type="button" class="btn btn-success" onclick="verifyProvider('${provider.bppId}')" data-bs-dismiss="modal">
+        <i class="fas fa-check me-2"></i>Verify & Approve
+      </button>
+    `;
+  } else {
+    modalFooter.innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    `;
+  }
+  
+  const modal = new bootstrap.Modal(document.getElementById('providerModal'));
+  modal.show();
+}
+
+// Verify provider
+async function verifyProvider(bppId) {
+  try {
+    const response = await fetch(`/api/providers/${bppId}/verify`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showAlert('success', `Provider verified successfully! Login credentials: Username: ${result.data.credentials.username}, Password: ${result.data.credentials.password}`);
+      
+      // Refresh data
+      onboardingData = [];
+      verifiedData = [];
+      await Promise.all([loadOnboardingRequests(), loadVerifiedProviders()]);
+      updateStatistics();
+    } else {
+      showAlert('error', result.message || 'Failed to verify provider');
+    }
+  } catch (error) {
+    console.error('Error verifying provider:', error);
+    showAlert('error', 'Failed to verify provider');
+  }
+}
+
+// Show reject modal
+function showRejectModal(bppId) {
+  document.getElementById('rejectBppId').value = bppId;
+  document.getElementById('rejectReason').value = '';
+  
+  const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+  modal.show();
+}
+
+// Confirm rejection
+async function confirmReject() {
+  const bppId = document.getElementById('rejectBppId').value;
+  const reason = document.getElementById('rejectReason').value.trim();
+  
+  if (!reason) {
+    showAlert('error', 'Please provide a rejection reason');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/providers/${bppId}/reject`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason }),
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showAlert('success', 'Provider rejected successfully');
+      
+      // Close modal
+      bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+      
+      // Refresh data
+      onboardingData = [];
+      rejectedData = [];
+      await Promise.all([loadOnboardingRequests(), loadRejectedProviders()]);
+      updateStatistics();
+    } else {
+      showAlert('error', result.message || 'Failed to reject provider');
+    }
+  } catch (error) {
+    console.error('Error rejecting provider:', error);
+    showAlert('error', 'Failed to reject provider');
+  }
+}
+
+// Utility functions
+function showLoadingSpinner(spinnerId) {
+  const spinner = document.getElementById(spinnerId);
+  if (spinner) spinner.style.display = 'block';
+}
+
+function hideLoadingSpinner(spinnerId) {
+  const spinner = document.getElementById(spinnerId);
+  if (spinner) spinner.style.display = 'none';
+}
+
+function showAlert(type, message) {
+  const alertContainer = document.getElementById('alertContainer');
+  const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+  const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+  
+  const alertHtml = `
+    <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+      <i class="fas ${iconClass} me-2"></i>
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  `;
+  
+  alertContainer.innerHTML = alertHtml;
+  
+  // Auto-dismiss after 5 seconds
+  setTimeout(() => {
+    const alert = alertContainer.querySelector('.alert');
+    if (alert) {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    }
+  }, 5000);
+}
+</script>
+
+<!-- Bootstrap 5 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

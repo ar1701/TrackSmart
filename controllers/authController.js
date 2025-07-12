@@ -5,8 +5,17 @@ const { handleResponse } = require("../utils/responseHandler");
 
 // Show login page
 const showLogin = (req, res) => {
-  res.render("login", {
+  res.render("providerPage/login", {
     title: "Provider Login",
+    error: req.flash("error"),
+    success: req.flash("success"),
+  });
+};
+
+// Show carrier onboard page
+const showCarrierOnboard = (req, res) => {
+  res.render("onboard_carrier", {
+    title: "Onboard Carrier - TrackSmart",
     error: req.flash("error"),
     success: req.flash("success"),
   });
@@ -21,13 +30,15 @@ const login = (req, res) => {
 const showDashboard = async (req, res) => {
   try {
     const provider = req.user;
-    res.render("dashboard", {
+    res.render("providerPage/dashboard", {
       title: "Provider Dashboard",
       provider: provider,
     });
   } catch (error) {
     console.error("Error loading dashboard:", error);
-    res.status(500).render("error", { message: "Error loading dashboard" });
+    res
+      .status(500)
+      .render("providerPage/error", { message: "Error loading dashboard" });
   }
 };
 
@@ -83,7 +94,8 @@ const generateCredentials = async (providerId) => {
 
 // API: Get Provider Login Info
 const getProviderLoginAPI = (req, res) => {
-  return handleResponse(req, res, "api-response", {
+  return handleResponse(res, {
+    type: "api",
     success: true,
     message: "Provider login information",
     data: {
@@ -91,8 +103,8 @@ const getProviderLoginAPI = (req, res) => {
       method: "POST",
       requiredFields: ["username", "password"],
       note: "Login credentials are generated when a provider is verified",
-    }
-  }, { title: "Provider Login Information" });
+    },
+  });
 };
 
 // API: Provider Login
@@ -101,34 +113,38 @@ const providerLoginAPI = async (req, res, next) => {
     passport.authenticate("local", (err, user, info) => {
       if (err) {
         console.error("Authentication error:", err);
-        return handleResponse(req, res, "api-response", {
+        return handleResponse(res, {
+          type: "api",
           success: false,
+          statusCode: 500,
           message: "Authentication error",
-          error: err.message,
-          status: 500
-        }, { title: "Login Error" });
+          data: { error: err.message },
+        });
       }
 
       if (!user) {
-        return handleResponse(req, res, "api-response", {
+        return handleResponse(res, {
+          type: "api",
           success: false,
+          statusCode: 401,
           message: info.message || "Invalid credentials",
-          status: 401
-        }, { title: "Login Failed" });
+        });
       }
 
       req.logIn(user, (err) => {
         if (err) {
           console.error("Login error:", err);
-          return handleResponse(req, res, "api-response", {
+          return handleResponse(res, {
+            type: "api",
             success: false,
+            statusCode: 500,
             message: "Login error",
-            error: err.message,
-            status: 500
-          }, { title: "Login Error" });
+            data: { error: err.message },
+          });
         }
 
-        return handleResponse(req, res, "api-response", {
+        return handleResponse(res, {
+          type: "api",
           success: true,
           message: "Login successful",
           data: {
@@ -137,22 +153,25 @@ const providerLoginAPI = async (req, res, next) => {
               name: user.name,
               bppId: user.bppId,
               email: user.email,
+              username: user.username,
+              isVerified: user.isVerified,
             },
             session: {
               expiresIn: "24h",
             },
-          }
-        }, { title: "Login Successful" });
+          },
+        });
       });
     })(req, res, next);
   } catch (error) {
     console.error("Login API error:", error);
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: false,
+      statusCode: 500,
       message: "Login processing error",
-      error: error.message,
-      status: 500
-    }, { title: "Login Error" });
+      data: { error: error.message },
+    });
   }
 };
 
@@ -161,18 +180,20 @@ const providerLogoutAPI = (req, res) => {
   req.logout((err) => {
     if (err) {
       console.error("Logout error:", err);
-      return handleResponse(req, res, "api-response", {
+      return handleResponse(res, {
+        type: "api",
         success: false,
+        statusCode: 500,
         message: "Logout error",
-        error: err.message,
-        status: 500
-      }, { title: "Logout Error" });
+        data: { error: err.message },
+      });
     }
 
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: true,
-      message: "Logged out successfully"
-    }, { title: "Logout Successful" });
+      message: "Logged out successfully",
+    });
   });
 };
 
@@ -184,7 +205,8 @@ const getProviderDashboard = async (req, res) => {
     // Additional dashboard data can be fetched here
     // For example, shipment statistics, recent orders, etc.
 
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: true,
       message: "Dashboard data retrieved successfully",
       data: {
@@ -193,6 +215,8 @@ const getProviderDashboard = async (req, res) => {
           name: provider.name,
           bppId: provider.bppId,
           email: provider.email,
+          username: provider.username,
+          isVerified: provider.isVerified,
         },
         stats: {
           // Example statistics, replace with actual data
@@ -202,16 +226,17 @@ const getProviderDashboard = async (req, res) => {
           cancelledShipments: 0,
         },
         // Additional dashboard data can be added here
-      }
-    }, { title: "Provider Dashboard" });
+      },
+    });
   } catch (error) {
     console.error("Error retrieving dashboard data:", error);
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: false,
+      statusCode: 500,
       message: "Failed to retrieve dashboard data",
-      error: error.message,
-      status: 500
-    }, { title: "Dashboard Error" });
+      data: { error: error.message },
+    });
   }
 };
 
@@ -220,7 +245,8 @@ const getProviderProfile = async (req, res) => {
   try {
     const provider = req.user;
 
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: true,
       message: "Provider profile retrieved successfully",
       data: {
@@ -238,17 +264,18 @@ const getProviderProfile = async (req, res) => {
           isVerified: provider.isVerified,
           verifiedAt: provider.verifiedAt,
           createdAt: provider.createdAt,
-        }
-      }
-    }, { title: "Provider Profile" });
+        },
+      },
+    });
   } catch (error) {
     console.error("Error retrieving provider profile:", error);
-    return handleResponse(req, res, "api-response", {
+    return handleResponse(res, {
+      type: "api",
       success: false,
+      statusCode: 500,
       message: "Failed to retrieve provider profile",
-      error: error.message,
-      status: 500
-    }, { title: "Profile Error" });
+      data: { error: error.message },
+    });
   }
 };
 
@@ -263,4 +290,5 @@ module.exports = {
   providerLogoutAPI,
   getProviderDashboard,
   getProviderProfile,
+  showCarrierOnboard,
 };

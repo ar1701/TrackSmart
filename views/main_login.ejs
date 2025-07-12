@@ -1,0 +1,512 @@
+<%- include('partials/header') %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">Login</h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="text-white" href="/">Home</a></li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Login
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Login Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+      <h6 class="text-secondary text-uppercase">Access Your Account</h6>
+      <h1 class="mb-5">Choose Your Login Type</h1>
+      <p class="mb-5">
+        Select the type of account you want to access and proceed with your
+        login credentials.
+      </p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <!-- Individual User Login -->
+      <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.2s">
+        <div class="service-item p-4 h-100">
+          <div class="overflow-hidden mb-4">
+            <div
+              class="d-flex align-items-center justify-content-center bg-info text-white rounded-circle mx-auto"
+              style="width: 80px; height: 80px"
+            >
+              <i class="fa fa-user fa-2x"></i>
+            </div>
+          </div>
+          <h4 class="mb-3 text-center">Individual User</h4>
+          <p class="text-center mb-4">
+            Access your personal account to track orders and manage shipments.
+          </p>
+          <div class="text-center">
+            <button
+              class="btn btn-info py-3 px-5"
+              onclick="showLoginForm('user')"
+            >
+              <i class="fa fa-arrow-right me-2"></i>Login as User
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller Login -->
+      <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
+        <div class="service-item p-4 h-100">
+          <div class="overflow-hidden mb-4">
+            <div
+              class="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle mx-auto"
+              style="width: 80px; height: 80px"
+            >
+              <i class="fa fa-store fa-2x"></i>
+            </div>
+          </div>
+          <h4 class="mb-3 text-center">Seller Login</h4>
+          <p class="text-center mb-4">
+            Access your seller dashboard to manage orders, track shipments, and
+            view analytics.
+          </p>
+          <div class="text-center">
+            <button
+              class="btn btn-primary py-3 px-5"
+              onclick="showLoginForm('seller')"
+            >
+              <i class="fa fa-arrow-right me-2"></i>Login as Seller
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Login -->
+      <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.5s">
+        <div class="service-item p-4 h-100">
+          <div class="overflow-hidden mb-4">
+            <div
+              class="d-flex align-items-center justify-content-center bg-secondary text-white rounded-circle mx-auto"
+              style="width: 80px; height: 80px"
+            >
+              <i class="fa fa-cog fa-2x"></i>
+            </div>
+          </div>
+          <h4 class="mb-3 text-center">Admin Login</h4>
+          <p class="text-center mb-4">
+            Access administrative panel to manage users, providers, and system
+            settings.
+          </p>
+          <div class="text-center">
+            <button
+              class="btn btn-secondary py-3 px-5"
+              onclick="showLoginForm('admin')"
+            >
+              <i class="fa fa-arrow-right me-2"></i>Login as Admin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logistics Provider Login -->
+      <div class="col-md-6 col-lg-3 wow fadeInUp" data-wow-delay="0.7s">
+        <div class="service-item p-4 h-100">
+          <div class="overflow-hidden mb-4">
+            <div
+              class="d-flex align-items-center justify-content-center bg-success text-white rounded-circle mx-auto"
+              style="width: 80px; height: 80px"
+            >
+              <i class="fa fa-truck fa-2x"></i>
+            </div>
+          </div>
+          <h4 class="mb-3 text-center">Logistics Provider</h4>
+          <p class="text-center mb-4">
+            Access your provider dashboard to manage deliveries and logistics
+            operations.
+          </p>
+          <div class="text-center">
+            <button
+              class="btn btn-success py-3 px-5"
+              onclick="showLoginForm('provider')"
+            >
+              <i class="fa fa-arrow-right me-2"></i>Login as Provider
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Login End -->
+
+<!-- Login Modal -->
+<div
+  class="modal fade"
+  id="loginModal"
+  tabindex="-1"
+  aria-labelledby="loginModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">
+          <i id="modalIcon" class="fa fa-user me-2"></i>
+          <span id="modalTitle">Login</span>
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div id="alertContainer"></div>
+        <form id="loginForm">
+          <input type="hidden" id="userType" name="userType" value="" />
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="username" class="form-label">Username/Email</label>
+              <input
+                type="text"
+                class="form-control border-0"
+                id="username"
+                name="username"
+                placeholder="Enter your username or email"
+                style="height: 55px"
+                required
+              />
+            </div>
+
+            <div class="col-12">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input
+                  type="password"
+                  class="form-control border-0"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  style="height: 55px"
+                  required
+                />
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  id="togglePassword"
+                  style="height: 55px"
+                >
+                  <i class="fa fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="rememberMe"
+                  name="rememberMe"
+                />
+                <label class="form-check-label" for="rememberMe">
+                  Remember me
+                </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button
+                class="btn btn-primary w-100 py-3"
+                type="submit"
+                id="loginBtn"
+              >
+                <i class="fa fa-sign-in-alt me-2"></i>Login
+              </button>
+            </div>
+
+            <div class="col-12 text-center">
+              <a
+                href="#"
+                class="text-decoration-none"
+                onclick="showForgotPassword()"
+              >
+                Forgot your password?
+              </a>
+            </div>
+
+            <!-- Registration Links -->
+            <div class="col-12 text-center" id="registrationLinks">
+              <hr class="my-3" />
+              <p class="mb-2">Don't have an account?</p>
+              <div id="registerOptions">
+                <!-- Dynamic registration options will be added here -->
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+  .service-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+  }
+
+  .service-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-group .btn {
+    border-radius: 0 8px 8px 0;
+  }
+
+  #alertContainer .alert {
+    border-radius: 8px;
+    border: none;
+  }
+
+  .registration-btn {
+    margin: 5px;
+    border-radius: 20px;
+    padding: 8px 20px;
+  }
+</style>
+
+<!-- JavaScript -->
+<script>
+  let currentUserType = "";
+
+  function showLoginForm(userType) {
+    currentUserType = userType;
+    document.getElementById("userType").value = userType;
+
+    const modal = new bootstrap.Modal(document.getElementById("loginModal"));
+    const modalTitle = document.getElementById("modalTitle");
+    const modalIcon = document.getElementById("modalIcon");
+    const registerOptions = document.getElementById("registerOptions");
+
+    // Clear any previous alerts
+    document.getElementById("alertContainer").innerHTML = "";
+
+    // Reset form
+    document.getElementById("loginForm").reset();
+    document.getElementById("userType").value = userType;
+
+    // Update modal title and icon based on user type
+    switch (userType) {
+      case "user":
+        modalTitle.textContent = "Individual User Login";
+        modalIcon.className = "fa fa-user me-2";
+        registerOptions.innerHTML = `
+        <a href="/register-user" class="btn btn-outline-info registration-btn">
+          <i class="fa fa-plus me-1"></i>Register as User
+        </a>
+      `;
+        break;
+      case "seller":
+        modalTitle.textContent = "Seller Login";
+        modalIcon.className = "fa fa-store me-2";
+        registerOptions.innerHTML = `
+        <a href="/onboard-seller" class="btn btn-outline-primary registration-btn">
+          <i class="fa fa-plus me-1"></i>Register as Seller
+        </a>
+      `;
+        break;
+      case "admin":
+        modalTitle.textContent = "Admin Login";
+        modalIcon.className = "fa fa-cog me-2";
+        registerOptions.innerHTML = `
+        <small class="text-muted">Admin accounts are created by system administrators.</small>
+      `;
+        break;
+      case "provider":
+        modalTitle.textContent = "Logistics Provider Login";
+        modalIcon.className = "fa fa-truck me-2";
+        registerOptions.innerHTML = `
+        <a href="/onboard-carrier" class="btn btn-outline-success registration-btn">
+          <i class="fa fa-plus me-1"></i>Register as Provider
+        </a>
+      `;
+        break;
+    }
+
+    modal.show();
+  }
+
+  // Toggle password visibility
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const passwordField = document.getElementById("password");
+      const toggleIcon = this.querySelector("i");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.className = "fa fa-eye-slash";
+      } else {
+        passwordField.type = "password";
+        toggleIcon.className = "fa fa-eye";
+      }
+    });
+
+  // Handle form submission
+  document
+    .getElementById("loginForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+      const alertContainer = document.getElementById("alertContainer");
+      const loginBtn = document.getElementById("loginBtn");
+
+      // Show loading state
+      loginBtn.disabled = true;
+      loginBtn.innerHTML =
+        '<i class="fa fa-spinner fa-spin me-2"></i>Logging in...';
+
+      try {
+        let apiEndpoint;
+
+        // Determine API endpoint based on user type
+        switch (data.userType) {
+          case "user":
+            apiEndpoint = "/api/users/login";
+            break;
+          case "seller":
+            apiEndpoint = "/api/sellers/login";
+            break;
+          case "admin":
+            apiEndpoint = "/api/admin/login";
+            break;
+          case "provider":
+            apiEndpoint = "/api/providers/login";
+            break;
+          default:
+            throw new Error("Invalid user type");
+        }
+
+        const response = await fetch(apiEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: data.username,
+            password: data.password,
+            rememberMe: data.rememberMe === "on",
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success message
+          alertContainer.innerHTML = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fa fa-check-circle me-2"></i>
+          <strong>Success!</strong> Login successful! Redirecting to dashboard...
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+
+          // Redirect based on user type
+          setTimeout(() => {
+            switch (data.userType) {
+              case "user":
+                window.location.href = "/user/dashboard";
+                break;
+              case "seller":
+                window.location.href = "/seller/dashboard";
+                break;
+              case "admin":
+                window.location.href = "/admin/dashboard";
+                break;
+              case "provider":
+                window.location.href = "/dashboard";
+                break;
+            }
+          }, 1500);
+        } else {
+          // Show error message
+          alertContainer.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa fa-exclamation-triangle me-2"></i>
+          <strong>Error!</strong> ${
+            result.message || "Login failed. Please check your credentials."
+          }
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        alertContainer.innerHTML = `
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>
+        <strong>Error!</strong> Network error. Please try again later.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    `;
+      } finally {
+        // Reset button state
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fa fa-sign-in-alt me-2"></i>Login';
+      }
+    });
+
+  function showForgotPassword() {
+    alert(
+      "Forgot password functionality will be implemented soon. Please contact administrator for password reset."
+    );
+  }
+
+  // Auto-focus username field when modal opens
+  document
+    .getElementById("loginModal")
+    .addEventListener("shown.bs.modal", function () {
+      document.getElementById("username").focus();
+    });
+</script>
+
+<%- include('partials/footer') %>

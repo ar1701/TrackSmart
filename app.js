@@ -14,6 +14,10 @@ var passport = require("./config/passport");
 // Import routes
 var apiRoutes = require("./routes/index");
 var authRoutes = require("./routes/authRoutes");
+var sellerRoutes = require("./routes/sellerRoutes");
+var adminRoutes = require("./routes/adminRoutes");
+var userRoutes = require("./routes/userRoutes");
+var providerRoutes = require("./routes/providerRoutes");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -57,14 +61,9 @@ connectDB()
 
 // Main root route
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Welcome to TrackSmart!",
-    version: "1.0.0",
-    api: {
-      baseUrl: "/api",
-      documentation: "Visit /api for API endpoints",
-    },
+  res.render("index", {
+    title: "TrackSmart - Universal Logistics Platform",
+    currentPage: "home",
   });
 });
 
@@ -73,6 +72,18 @@ app.use("/api", apiRoutes);
 
 // Authentication Routes
 app.use("/", authRoutes);
+
+// User Routes
+app.use("/api/users", userRoutes);
+
+// Seller Routes
+app.use("/api/sellers", sellerRoutes);
+
+// Admin Routes
+app.use("/api/admin", adminRoutes);
+
+// Provider Routes
+app.use("/api", providerRoutes);
 
 // Error handling middleware (should be last)
 app.use(errorHandler);

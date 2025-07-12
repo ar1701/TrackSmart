@@ -1,0 +1,552 @@
+<%- include('partials/header', { title: 'Onboard Carrier - TrackSmart',
+currentPage: 'onboard-carrier' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      Onboard Carrier
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-white" href="#">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a class="text-white" href="#">Pages</a>
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Onboard Carrier
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Carrier Onboarding Start -->
+<div class="container-xxl">
+  <div class="container">
+    <div class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+      <h6 class="text-secondary text-uppercase">Onboard Carrier</h6>
+      <h1 class="mb-3">Add a New Delivery Carrier</h1>
+      <p>
+        Fill the form below to onboard a new logistics partner onto the
+        platform.
+      </p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="bg-light p-5 wow fadeInUp" data-wow-delay="0.3s">
+          <div id="alert-container"></div>
+          <form id="carrierOnboardForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <input
+                  type="text"
+                  name="name"
+                  class="form-control border-0"
+                  placeholder="Carrier Name"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+              <div class="col-12">
+                <input
+                  type="email"
+                  name="email"
+                  class="form-control border-0"
+                  placeholder="Carrier Contact Email"
+                  style="height: 55px"
+                  required
+                />
+              </div>
+              <div class="col-12">
+                <textarea
+                  name="supportedPincodes"
+                  class="form-control border-0"
+                  placeholder="Supported Pincodes (comma-separated, e.g. 110001,110002,400001)"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label text-muted mb-2"
+                  >Has API Integration?</label
+                >
+                <select
+                  name="hasBaseUri"
+                  class="form-select border-0"
+                  style="height: 55px"
+                  required
+                >
+                  <option value="">Select Option</option>
+                  <option value="true">Yes, has API</option>
+                  <option value="false">No API</option>
+                </select>
+              </div>
+              <div
+                class="col-12 col-sm-6"
+                id="baseUriField"
+                style="display: none"
+              >
+                <label class="form-label text-muted mb-2">API Base URL</label>
+                <input
+                  type="url"
+                  name="baseUri"
+                  class="form-control border-0"
+                  placeholder="https://api.carrier.com"
+                  style="height: 55px"
+                />
+              </div>
+              <div class="col-12">
+                <label class="form-label text-muted mb-2"
+                  >Supported Services (select multiple)</label
+                >
+                <div class="row">
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="search"
+                        name="actions"
+                        id="search"
+                      />
+                      <label class="form-check-label" for="search"
+                        >Search</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="select"
+                        name="actions"
+                        id="select"
+                      />
+                      <label class="form-check-label" for="select"
+                        >Select</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="init"
+                        name="actions"
+                        id="init"
+                      />
+                      <label class="form-check-label" for="init"
+                        >Initialize</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="confirm"
+                        name="actions"
+                        id="confirm"
+                      />
+                      <label class="form-check-label" for="confirm"
+                        >Confirm</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="status"
+                        name="actions"
+                        id="status"
+                      />
+                      <label class="form-check-label" for="status"
+                        >Status</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="track"
+                        name="actions"
+                        id="track"
+                      />
+                      <label class="form-check-label" for="track">Track</label>
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="cancel"
+                        name="actions"
+                        id="cancel"
+                      />
+                      <label class="form-check-label" for="cancel"
+                        >Cancel</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value="update"
+                        name="actions"
+                        id="update"
+                      />
+                      <label class="form-check-label" for="update"
+                        >Update</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label text-muted mb-2"
+                  >Weight Limits (kg)</label
+                >
+                <div class="row">
+                  <div class="col-6">
+                    <input
+                      type="number"
+                      name="weightLimits.min"
+                      class="form-control border-0"
+                      placeholder="Min Weight"
+                      style="height: 55px"
+                      step="0.1"
+                      min="0"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <input
+                      type="number"
+                      name="weightLimits.max"
+                      class="form-control border-0"
+                      placeholder="Max Weight"
+                      style="height: 55px"
+                      step="0.1"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label text-muted mb-2"
+                  >Dimension Limits (cm)</label
+                >
+                <div class="row">
+                  <div class="col-4">
+                    <input
+                      type="number"
+                      name="dimensionalLimits.l"
+                      class="form-control border-0"
+                      placeholder="Length"
+                      style="height: 55px"
+                      min="0"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <input
+                      type="number"
+                      name="dimensionalLimits.w"
+                      class="form-control border-0"
+                      placeholder="Width"
+                      style="height: 55px"
+                      min="0"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <input
+                      type="number"
+                      name="dimensionalLimits.h"
+                      class="form-control border-0"
+                      placeholder="Height"
+                      style="height: 55px"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <button
+                  class="btn btn-primary w-100 py-3"
+                  type="submit"
+                  id="submitBtn"
+                >
+                  Onboard Carrier
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Carrier Onboarding End -->
+
+<!-- Footer Start -->
+<div
+  class="container-fluid bg-dark text-light footer pt-5 wow fadeIn"
+  data-wow-delay="0.1s"
+  style="margin-top: 6rem"
+>
+  <div class="container py-5">
+    <div class="row g-5">
+      <div class="col-lg-3 col-md-6">
+        <h4 class="text-light mb-4">Address</h4>
+        <p class="mb-2">
+          <i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA
+        </p>
+        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+        <div class="d-flex pt-2">
+          <a class="btn btn-outline-light btn-social" href=""
+            ><i class="fab fa-twitter"></i
+          ></a>
+          <a class="btn btn-outline-light btn-social" href=""
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a class="btn btn-outline-light btn-social" href=""
+            ><i class="fab fa-youtube"></i
+          ></a>
+          <a class="btn btn-outline-light btn-social" href=""
+            ><i class="fab fa-linkedin-in"></i
+          ></a>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h4 class="text-light mb-4">Services</h4>
+        <a class="btn btn-link" href="">Air Freight</a>
+        <a class="btn btn-link" href="">Sea Freight</a>
+        <a class="btn btn-link" href="">Road Freight</a>
+        <a class="btn btn-link" href="">Logistic Solutions</a>
+        <a class="btn btn-link" href="">Industry solutions</a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h4 class="text-light mb-4">Quick Links</h4>
+        <a class="btn btn-link" href="">About Us</a>
+        <a class="btn btn-link" href="">Contact Us</a>
+        <a class="btn btn-link" href="">Our Services</a>
+        <a class="btn btn-link" href="">Terms & Condition</a>
+        <a class="btn btn-link" href="">Support</a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h4 class="text-light mb-4">Newsletter</h4>
+        <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+        <div class="position-relative mx-auto" style="max-width: 400px">
+          <input
+            class="form-control border-0 w-100 py-3 ps-4 pe-5"
+            type="text"
+            placeholder="Your email"
+          />
+          <button
+            type="button"
+            class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2"
+          >
+            SignUp
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="copyright">
+      <div class="row">
+        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+          &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right
+          Reserved.
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+          Designed By
+          <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Footer End -->
+
+<!-- Back to Top -->
+<a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"
+  ><i class="bi bi-arrow-up"></i
+></a>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="lib/wow/wow.min.js"></script>
+<script src="lib/easing/easing.min.js"></script>
+<script src="lib/waypoints/waypoints.min.js"></script>
+<script src="lib/counterup/counterup.min.js"></script>
+<script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+<!-- Template Javascript -->
+<script src="js/main.js"></script>
+
+<script>
+  // Handle hasBaseUri field visibility
+  document
+    .querySelector('select[name="hasBaseUri"]')
+    .addEventListener("change", function () {
+      const baseUriField = document.getElementById("baseUriField");
+      const baseUriInput = document.querySelector('input[name="baseUri"]');
+
+      if (this.value === "true") {
+        baseUriField.style.display = "block";
+        baseUriInput.required = true;
+      } else {
+        baseUriField.style.display = "none";
+        baseUriInput.required = false;
+        baseUriInput.value = "";
+      }
+    });
+
+  // Handle form submission
+  document
+    .getElementById("carrierOnboardForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submitBtn");
+      const alertContainer = document.getElementById("alert-container");
+
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+      // Clear previous alerts
+      alertContainer.innerHTML = "";
+
+      try {
+        // Collect form data
+        const formData = new FormData(this);
+
+        // Convert form data to JSON
+        const data = {};
+
+        // Handle regular fields
+        for (let [key, value] of formData.entries()) {
+          if (key === "actions") continue; // Handle actions separately
+          if (key.includes(".")) {
+            // Handle nested objects like weightLimits.min
+            const [parent, child] = key.split(".");
+            if (!data[parent]) data[parent] = {};
+            data[parent][child] = value
+              ? isNaN(value)
+                ? value
+                : parseFloat(value)
+              : undefined;
+          } else {
+            if (key === "hasBaseUri") {
+              data[key] = value === "true";
+            } else {
+              data[key] = value;
+            }
+          }
+        }
+
+        // Handle actions (checkboxes)
+        const checkedActions = Array.from(
+          document.querySelectorAll('input[name="actions"]:checked')
+        ).map((cb) => cb.value);
+        data.actions = checkedActions;
+
+        // Handle supportedPincodes (convert comma-separated string to array)
+        if (data.supportedPincodes) {
+          data.supportedPincodes = data.supportedPincodes
+            .split(",")
+            .map((pin) => pin.trim())
+            .filter((pin) => pin);
+        }
+
+        // Clean up empty values
+        if (data.weightLimits) {
+          if (!data.weightLimits.min && !data.weightLimits.max) {
+            delete data.weightLimits;
+          }
+        }
+        if (data.dimensionalLimits) {
+          if (
+            !data.dimensionalLimits.l &&
+            !data.dimensionalLimits.w &&
+            !data.dimensionalLimits.h
+          ) {
+            delete data.dimensionalLimits;
+          }
+        }
+
+        // Submit to provider API
+        const response = await fetch("/api/providers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success message
+          alertContainer.innerHTML = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> Carrier onboarded successfully! 
+                            <br><small>Carrier ID: ${result.data.provider.bppId}</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+
+          // Reset form
+          this.reset();
+          document.getElementById("baseUriField").style.display = "none";
+
+          // Scroll to top to show success message
+          document
+            .getElementById("alert-container")
+            .scrollIntoView({ behavior: "smooth" });
+        } else {
+          // Show error message from server
+          alertContainer.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Error!</strong> ${
+                              result.message || "Unknown error occurred"
+                            }
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+        }
+      } catch (error) {
+        console.error("Form submission error:", error);
+        alertContainer.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> Failed to submit carrier application. Please try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+      } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Onboard Carrier";
+      }
+    });
+</script>
+
+<%- include('partials/footer') %>
