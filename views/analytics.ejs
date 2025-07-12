@@ -1,52 +1,210 @@
-<%- include('partials/header', { title: 'Analytics & Dashboard - TrackSmart',
-currentPage: 'analytics' }) %>
+<%- include('partials/header', { title: 'Analytics - TrackSmart', currentPage: 'analytics' }) %>
 
 <!-- Page Header Start -->
-<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+<div class="container-fluid page-header py-5 mb-5">
   <div class="container py-5">
-    <h1 class="display-3 text-white mb-3 animated slideInDown">Not Found</h1>
+    <h1 class="display-3 text-white mb-3 animated slideInDown">Analytics Dashboard</h1>
     <nav aria-label="breadcrumb animated slideInDown">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
-        <li class="breadcrumb-item">
-          <a class="text-white" href="#">Pages</a>
-        </li>
-        <li class="breadcrumb-item text-white active" aria-current="page">
-          404
-        </li>
+        <li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
+        <li class="breadcrumb-item text-white active" aria-current="page">Analytics</li>
       </ol>
     </nav>
   </div>
 </div>
 <!-- Page Header End -->
 
-<!-- 404 Start -->
-<div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
-  <div class="container text-center py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-6">
-        <i class="bi bi-exclamation-triangle display-1 text-primary"></i>
-        <h1 class="display-1">404</h1>
-        <h1 class="mb-4">Page Not Found</h1>
-        <p class="mb-4">
-          We’re sorry, the page you have looked for does not exist in our
-          website! Maybe go to our home page or try to use a search?
-        </p>
-        <a class="btn btn-primary rounded-pill py-3 px-5" href=""
-          >Go Back To Home</a
-        >
+<!-- Analytics Section Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <h2 class="mb-2">2,847</h2>
+          <p class="text-uppercase text-secondary mb-1">Active Shipments</p>
+          <small class="text-success">↗ +12.3% from last month</small>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <h2 class="mb-2">98.7%</h2>
+          <p class="text-uppercase text-secondary mb-1">On-Time Delivery</p>
+          <small class="text-success">↗ +2.1% improvement</small>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <h2 class="mb-2">$2.4M</h2>
+          <p class="text-uppercase text-secondary mb-1">Monthly Revenue</p>
+          <small class="text-success">↗ +18.5% growth</small>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <h2 class="mb-2">156</h2>
+          <p class="text-uppercase text-secondary mb-1">Partner Carriers</p>
+          <small class="text-success">↗ +8 new partners</small>
+        </div>
       </div>
     </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-5">
+      <div class="col-lg-8">
+        <div class="bg-light p-4 rounded shadow-sm h-100">
+          <h4 class="text-center mb-4">Shipment Volume Trends</h4>
+          <canvas id="shipmentChart"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="bg-light p-4 rounded shadow-sm h-100">
+          <h4 class="text-center mb-4">Route Distribution</h4>
+          <canvas id="routeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row g-4">
+      <!-- Carrier Performance -->
+      <div class="col-lg-4">
+        <div class="bg-light p-4 rounded shadow-sm h-100">
+          <h5 class="text-center mb-4">Carrier Performance</h5>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Express Logistics Co.</span>
+              <span>96.2%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-success" style="width: 96.2%"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Swift Transport</span>
+              <span>94.8%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-success" style="width: 94.8%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between">
+              <span>Global Freight</span>
+              <span>92.5%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-success" style="width: 92.5%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost Efficiency -->
+      <div class="col-lg-4">
+        <div class="bg-light p-4 rounded shadow-sm h-100">
+          <h5 class="text-center mb-4">Cost Efficiency</h5>
+          <p class="d-flex justify-content-between mb-2"><span>Cost per Mile</span><span>$2.34</span></p>
+          <p class="d-flex justify-content-between mb-2"><span>Fuel Efficiency</span><span>7.2 MPG</span></p>
+          <p class="d-flex justify-content-between mb-1"><span>Route Optimization</span><span>89.3%</span></p>
+          <div class="progress mb-3">
+            <div class="progress-bar bg-info" style="width: 89.3%"></div>
+          </div>
+          <p class="d-flex justify-content-between mb-1"><span>Load Factor</span><span>91.7%</span></p>
+          <div class="progress">
+            <div class="progress-bar bg-info" style="width: 91.7%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Satisfaction -->
+      <div class="col-lg-4">
+        <div class="bg-light p-4 rounded shadow-sm h-100">
+          <h5 class="text-center mb-4">Customer Satisfaction</h5>
+          <p class="d-flex justify-content-between mb-1"><span>Overall Rating</span><span>4.8/5.0</span></p>
+          <div class="progress mb-3">
+            <div class="progress-bar bg-warning" style="width: 96%"></div>
+          </div>
+          <p class="d-flex justify-content-between mb-2"><span>Response Time</span><span>< 2 hours</span></p>
+          <p class="d-flex justify-content-between mb-1"><span>Issue Resolution</span><span>95.2%</span></p>
+          <div class="progress">
+            <div class="progress-bar bg-warning" style="width: 95.2%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
-<!-- 404 End -->
+<!-- Analytics Section End -->
 
-
-<!-- Back to Top -->
-<a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"
-  ><i class="bi bi-arrow-up"></i
-></a>
-
-<!-- JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <%- include('partials/footer') %>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Shipment Volume Chart
+  const shipmentCtx = document.getElementById('shipmentChart').getContext('2d');
+  new Chart(shipmentCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      datasets: [{
+        label: 'Shipments',
+        data: [1200, 1450, 1650, 1800, 2100, 2350, 2650],
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#0d6efd',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false }},
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#6c757d' },
+          grid: { color: '#e9ecef' }
+        },
+        x: {
+          ticks: { color: '#6c757d' },
+          grid: { color: '#e9ecef' }
+        }
+      }
+    }
+  });
+
+  // Route Distribution Chart
+  const routeCtx = document.getElementById('routeChart').getContext('2d');
+  new Chart(routeCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Domestic', 'International', 'Regional', 'Express'],
+      datasets: [{
+        data: [45, 25, 20, 10],
+        backgroundColor: ['#0d6efd', '#6f42c1', '#20c997', '#ffc107'],
+        borderWidth: 1,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#6c757d',
+            font: { size: 13 }
+          }
+        }
+      }
+    }
+  });
+</script>
