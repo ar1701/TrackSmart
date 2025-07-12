@@ -53,7 +53,7 @@
         margin-bottom: 1rem;
       }
       
-      .provider-section {
+      .provider-section, .seller-section {
         background: white;
         border-radius: 15px;
         padding: 2rem;
@@ -343,6 +343,165 @@
       </div>
     </div>
   </div>
+
+  <!-- Seller Management Section -->
+  <div class="seller-section mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="mb-0">
+        <i class="fas fa-store me-2"></i>Seller Management
+      </h4>
+      <button class="btn btn-primary" onclick="refreshSellerData()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+      </button>
+    </div>
+
+    <!-- Statistics Cards for Sellers -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-store stats-icon text-info"></i>
+          <h4 class="mb-2" id="totalSellers">0</h4>
+          <p class="text-muted mb-0">Total Sellers</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-clock stats-icon text-warning"></i>
+          <h4 class="mb-2" id="pendingSellerRequests">0</h4>
+          <p class="text-muted mb-0">Pending Requests</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-check-circle stats-icon text-success"></i>
+          <h4 class="mb-2" id="verifiedSellers">0</h4>
+          <p class="text-muted mb-0">Verified Sellers</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-times-circle stats-icon text-danger"></i>
+          <h4 class="mb-2" id="rejectedSellers">0</h4>
+          <p class="text-muted mb-0">Rejected Sellers</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4" id="sellerTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="seller-onboarding-tab" data-bs-toggle="pill" data-bs-target="#seller-onboarding" type="button" role="tab">
+          <i class="fas fa-hourglass-half me-2"></i>Onboarding Requests
+          <span class="badge bg-warning ms-2" id="sellerOnboardingCount">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="seller-verified-tab" data-bs-toggle="pill" data-bs-target="#seller-verified" type="button" role="tab">
+          <i class="fas fa-check-circle me-2"></i>Verified Sellers
+          <span class="badge bg-success ms-2" id="sellerVerifiedCount">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="seller-rejected-tab" data-bs-toggle="pill" data-bs-target="#seller-rejected" type="button" role="tab">
+          <i class="fas fa-times-circle me-2"></i>Rejected Sellers
+          <span class="badge bg-danger ms-2" id="sellerRejectedCount">0</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="sellerTabContent">
+      <!-- Seller Onboarding Requests Tab -->
+      <div class="tab-pane fade show active" id="seller-onboarding" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="sellerOnboardingLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading seller onboarding requests...</p>
+        </div>
+        
+        <div class="table-responsive" id="sellerOnboardingTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Seller Details</th>
+                <th>Contact</th>
+                <th>Business Info</th>
+                <th>Requested On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sellerOnboardingTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="sellerOnboardingEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No pending seller onboarding requests</p>
+        </div>
+      </div>
+
+      <!-- Verified Sellers Tab -->
+      <div class="tab-pane fade" id="seller-verified" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="sellerVerifiedLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading verified sellers...</p>
+        </div>
+        
+        <div class="table-responsive" id="sellerVerifiedTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Seller Details</th>
+                <th>Contact</th>
+                <th>Business Type</th>
+                <th>Verified On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="sellerVerifiedTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="sellerVerifiedEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No verified sellers yet</p>
+        </div>
+      </div>
+
+      <!-- Rejected Sellers Tab -->
+      <div class="tab-pane fade" id="seller-rejected" role="tabpanel">
+        <div class="loading-spinner text-center py-4" id="sellerRejectedLoading">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Loading rejected sellers...</p>
+        </div>
+        
+        <div class="table-responsive" id="sellerRejectedTable" style="display: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Seller Details</th>
+                <th>Contact</th>
+                <th>Rejection Reason</th>
+                <th>Rejected On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sellerRejectedTableBody">
+              <!-- Dynamic content -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center py-4" id="sellerRejectedEmpty" style="display: none;">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No rejected sellers</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Provider Details Modal -->
@@ -390,11 +549,125 @@
   </div>
 </div>
 
+<!-- Seller Details Modal -->
+<div class="modal fade" id="sellerModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-store me-2"></i>Seller Details
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="sellerModalBody">
+        <!-- Dynamic content -->
+      </div>
+      <div class="modal-footer" id="sellerModalFooter">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Seller Modal -->
+<div class="modal fade" id="rejectSellerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-times-circle me-2"></i>Reject Seller
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Please provide a reason for rejecting this seller application:</p>
+        <textarea class="form-control" id="rejectSellerReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+        <input type="hidden" id="rejectSellerId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmSellerReject()">
+          <i class="fas fa-times me-2"></i>Reject Seller
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Seller Credentials Modal -->
+<div class="modal fade" id="sellerCredentialsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-check-circle me-2"></i>Seller Verified Successfully
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Important:</strong> Please save these credentials securely. They will only be shown once!
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label"><strong>Seller Name:</strong></label>
+          <p id="credentialsSellerName" class="form-control-plaintext"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label"><strong>Business Name:</strong></label>
+          <p id="credentialsBusinessName" class="form-control-plaintext"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label"><strong>Username:</strong></label>
+          <div class="input-group">
+            <input type="text" id="credentialsUsername" class="form-control" readonly>
+            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('credentialsUsername')">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label"><strong>Password:</strong></label>
+          <div class="input-group">
+            <input type="text" id="credentialsPassword" class="form-control" readonly>
+            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('credentialsPassword')">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label"><strong>Login URL:</strong></label>
+          <div class="input-group">
+            <input type="text" id="credentialsLoginUrl" class="form-control" readonly>
+            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('credentialsLoginUrl')">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="downloadCredentials()">
+          <i class="fas fa-download me-2"></i>Download as Text
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // Global variables
 let onboardingData = [];
 let verifiedData = [];
 let rejectedData = [];
+let sellerOnboardingData = [];
+let sellerVerifiedData = [];
+let sellerRejectedData = [];
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
@@ -412,11 +685,25 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('rejected-tab').addEventListener('shown.bs.tab', function() {
     if (rejectedData.length === 0) loadRejectedProviders();
   });
+  
+  // Seller tab change events
+  document.getElementById('seller-onboarding-tab').addEventListener('shown.bs.tab', function() {
+    if (sellerOnboardingData.length === 0) loadSellerOnboardingRequests();
+  });
+  
+  document.getElementById('seller-verified-tab').addEventListener('shown.bs.tab', function() {
+    if (sellerVerifiedData.length === 0) loadSellerVerified();
+  });
+  
+  document.getElementById('seller-rejected-tab').addEventListener('shown.bs.tab', function() {
+    if (sellerRejectedData.length === 0) loadSellerRejected();
+  });
 });
 
 // Load dashboard statistics and initial data
 async function loadDashboardData() {
   await loadOnboardingRequests();
+  await loadSellerOnboardingRequests();
   updateStatistics();
 }
 
@@ -425,20 +712,50 @@ async function refreshData() {
   onboardingData = [];
   verifiedData = [];
   rejectedData = [];
+  sellerOnboardingData = [];
+  sellerVerifiedData = [];
+  sellerRejectedData = [];
   
   // Show loading spinners
   showLoadingSpinner('onboardingLoading');
   showLoadingSpinner('verifiedLoading');
   showLoadingSpinner('rejectedLoading');
+  showLoadingSpinner('sellerOnboardingLoading');
+  showLoadingSpinner('sellerVerifiedLoading');
+  showLoadingSpinner('sellerRejectedLoading');
   
   await Promise.all([
     loadOnboardingRequests(),
     loadVerifiedProviders(),
-    loadRejectedProviders()
+    loadRejectedProviders(),
+    loadSellerOnboardingRequests(),
+    loadSellerVerified(),
+    loadSellerRejected()
   ]);
   
   updateStatistics();
   showAlert('success', 'Data refreshed successfully!');
+}
+
+// Refresh seller data only
+async function refreshSellerData() {
+  sellerOnboardingData = [];
+  sellerVerifiedData = [];
+  sellerRejectedData = [];
+  
+  // Show loading spinners
+  showLoadingSpinner('sellerOnboardingLoading');
+  showLoadingSpinner('sellerVerifiedLoading');
+  showLoadingSpinner('sellerRejectedLoading');
+  
+  await Promise.all([
+    loadSellerOnboardingRequests(),
+    loadSellerVerified(),
+    loadSellerRejected()
+  ]);
+  
+  updateStatistics();
+  showAlert('success', 'Seller data refreshed successfully!');
 }
 
 // Load onboarding requests
@@ -504,6 +821,72 @@ async function loadRejectedProviders() {
     showAlert('error', 'Failed to load rejected providers');
   } finally {
     hideLoadingSpinner('rejectedLoading');
+  }
+}
+
+// Load seller onboarding requests
+async function loadSellerOnboardingRequests() {
+  try {
+    showLoadingSpinner('sellerOnboardingLoading');
+    
+    const response = await fetch('/api/sellers/onboard-requests');
+    const result = await response.json();
+    
+    if (result.success) {
+      sellerOnboardingData = result.data.sellers;
+      renderSellerOnboardingTable();
+    } else {
+      showAlert('error', 'Failed to load seller onboarding requests');
+    }
+  } catch (error) {
+    console.error('Error loading seller onboarding requests:', error);
+    showAlert('error', 'Failed to load seller onboarding requests');
+  } finally {
+    hideLoadingSpinner('sellerOnboardingLoading');
+  }
+}
+
+// Load seller verified
+async function loadSellerVerified() {
+  try {
+    showLoadingSpinner('sellerVerifiedLoading');
+    
+    const response = await fetch('/api/sellers/verified');
+    const result = await response.json();
+    
+    if (result.success) {
+      sellerVerifiedData = result.data.sellers;
+      renderSellerVerifiedTable();
+    } else {
+      showAlert('error', 'Failed to load verified sellers');
+    }
+  } catch (error) {
+    console.error('Error loading verified sellers:', error);
+    showAlert('error', 'Failed to load verified sellers');
+  } finally {
+    hideLoadingSpinner('sellerVerifiedLoading');
+  }
+}
+
+// Load seller rejected
+async function loadSellerRejected() {
+  try {
+    showLoadingSpinner('sellerRejectedLoading');
+    
+    const response = await fetch('/api/sellers/rejected');
+    const result = await response.json();
+    
+    if (result.success) {
+      sellerRejectedData = result.data;
+      renderSellerRejectedTable();
+    } else {
+      showAlert('error', 'Failed to load rejected sellers');
+    }
+  } catch (error) {
+    console.error('Error loading rejected sellers:', error);
+    showAlert('error', 'Failed to load rejected sellers');
+  } finally {
+    hideLoadingSpinner('sellerRejectedLoading');
   }
 }
 
@@ -653,19 +1036,170 @@ function renderRejectedTable() {
   empty.style.display = 'none';
 }
 
+// Render seller onboarding requests table
+function renderSellerOnboardingTable() {
+  const tbody = document.getElementById('sellerOnboardingTableBody');
+  const table = document.getElementById('sellerOnboardingTable');
+  const empty = document.getElementById('sellerOnboardingEmpty');
+  
+  if (sellerOnboardingData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = sellerOnboardingData.map(seller => `
+    <tr>
+      <td>
+        <div>
+          <strong>${seller.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${seller.sellerId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${seller.email}
+        </div>
+      </td>
+      <td>
+        <div>
+          <small class="text-muted">Business Type: ${seller.businessType || 'N/A'}</small>
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(seller.createdAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-info btn-action" onclick="viewSeller('${seller.sellerId}', 'onboarding')">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="btn btn-sm btn-success btn-action" onclick="verifySeller('${seller.sellerId}')">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="btn btn-sm btn-danger btn-action" onclick="showSellerRejectModal('${seller.sellerId}')">
+          <i class="fas fa-times"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+// Render seller verified table
+function renderSellerVerifiedTable() {
+  const tbody = document.getElementById('sellerVerifiedTableBody');
+  const table = document.getElementById('sellerVerifiedTable');
+  const empty = document.getElementById('sellerVerifiedEmpty');
+  
+  if (sellerVerifiedData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = sellerVerifiedData.map(seller => `
+    <tr>
+      <td>
+        <div>
+          <strong>${seller.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${seller.sellerId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${seller.email}
+        </div>
+      </td>
+      <td>
+        <div>
+          <small class="text-muted">Business Type: ${seller.businessType || 'N/A'}</small>
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(seller.verifiedAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <span class="status-badge status-verified">
+          <i class="fas fa-check-circle me-1"></i>Active
+        </span>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+// Render seller rejected table
+function renderSellerRejectedTable() {
+  const tbody = document.getElementById('sellerRejectedTableBody');
+  const table = document.getElementById('sellerRejectedTable');
+  const empty = document.getElementById('sellerRejectedEmpty');
+  
+  if (!sellerRejectedData || sellerRejectedData.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  tbody.innerHTML = sellerRejectedData.map(seller => `
+    <tr>
+      <td>
+        <div>
+          <strong>${seller.name}</strong>
+          <br>
+          <small class="text-muted">ID: ${seller.sellerId}</small>
+        </div>
+      </td>
+      <td>
+        <div>
+          <i class="fas fa-envelope me-1"></i>${seller.email}
+        </div>
+      </td>
+      <td>
+        <small class="text-muted">${seller.rejectionReason || 'No reason provided'}</small>
+      </td>
+      <td>
+        <small class="text-muted">${new Date(seller.rejectedAt).toLocaleDateString()}</small>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-info btn-action" onclick="viewSeller('${seller.sellerId}', 'rejected')">
+          <i class="fas fa-eye"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+  
+  table.style.display = 'block';
+  empty.style.display = 'none';
+}
+
 // Update statistics
 function updateStatistics() {
   const totalProviders = onboardingData.length + verifiedData.length + (rejectedData?.length || 0);
+  const totalSellers = sellerOnboardingData.length + sellerVerifiedData.length + (sellerRejectedData?.length || 0);
   
   document.getElementById('totalProviders').textContent = totalProviders;
   document.getElementById('pendingRequests').textContent = onboardingData.length;
   document.getElementById('verifiedProviders').textContent = verifiedData.length;
   document.getElementById('rejectedProviders').textContent = rejectedData?.length || 0;
   
+  document.getElementById('totalSellers').textContent = totalSellers;
+  document.getElementById('pendingSellerRequests').textContent = sellerOnboardingData.length;
+  document.getElementById('verifiedSellers').textContent = sellerVerifiedData.length;
+  document.getElementById('rejectedSellers').textContent = sellerRejectedData?.length || 0;
+  
   // Update tab badges
   document.getElementById('onboardingCount').textContent = onboardingData.length;
   document.getElementById('verifiedCount').textContent = verifiedData.length;
   document.getElementById('rejectedCount').textContent = rejectedData?.length || 0;
+  document.getElementById('sellerOnboardingCount').textContent = sellerOnboardingData.length;
+  document.getElementById('sellerVerifiedCount').textContent = sellerVerifiedData.length;
+  document.getElementById('sellerRejectedCount').textContent = sellerRejectedData?.length || 0;
 }
 
 // View provider details
@@ -832,6 +1366,180 @@ async function confirmReject() {
   }
 }
 
+// View seller details
+function viewSeller(sellerId, type) {
+  let seller;
+  
+  if (type === 'onboarding') {
+    seller = sellerOnboardingData.find(s => s.sellerId === sellerId);
+  } else if (type === 'verified') {
+    seller = sellerVerifiedData.find(s => s.sellerId === sellerId);
+  } else if (type === 'rejected') {
+    seller = sellerRejectedData.find(s => s.sellerId === sellerId);
+  }
+  
+  if (!seller) {
+    showAlert('error', 'Seller not found');
+    return;
+  }
+  
+  const modalBody = document.getElementById('sellerModalBody');
+  const modalFooter = document.getElementById('sellerModalFooter');
+  
+  modalBody.innerHTML = `
+    <div class="row">
+      <div class="col-md-6">
+        <h6><i class="fas fa-store me-2"></i>Business Information</h6>
+        <p><strong>Business Name:</strong> ${seller.name}</p>
+        <p><strong>Contact Person:</strong> ${seller.contactPerson || 'N/A'}</p>
+        <p><strong>Email:</strong> ${seller.email}</p>
+        <p><strong>Seller ID:</strong> ${seller.sellerId}</p>
+        <p><strong>Business Type:</strong> ${seller.businessType || 'N/A'}</p>
+        ${seller.hasBaseUri ? `<p><strong>API URI:</strong> <code>${seller.baseUri}</code></p>` : '<p><em>No API URI configured</em></p>'}
+      </div>
+      <div class="col-md-6">
+        <h6><i class="fas fa-cogs me-2"></i>Service Configuration</h6>
+        <p><strong>Supported Actions:</strong> ${seller.actions?.length || 0}</p>
+        ${seller.actions?.length ? `<div class="mb-2">${seller.actions.map(action => `<span class="badge bg-secondary me-1">${action}</span>`).join('')}</div>` : ''}
+        <p><strong>Coverage Areas:</strong> ${seller.supportedPincodes?.length || 0} pincodes</p>
+        ${seller.supportedPincodes?.length ? `<div class="mb-2">${seller.supportedPincodes.slice(0, 10).map(pincode => `<span class="badge bg-info me-1">${pincode}</span>`).join('')}${seller.supportedPincodes.length > 10 ? `<span class="text-muted">... +${seller.supportedPincodes.length - 10} more</span>` : ''}</div>` : ''}
+      </div>
+    </div>
+    
+    ${seller.weightLimits || seller.dimensionalLimits ? `
+    <hr>
+    <div class="row">
+      <div class="col-md-6">
+        <h6><i class="fas fa-weight me-2"></i>Weight Limits</h6>
+        <p>${seller.weightLimits ? `${seller.weightLimits.min}kg - ${seller.weightLimits.max}kg` : 'Not specified'}</p>
+      </div>
+      <div class="col-md-6">
+        <h6><i class="fas fa-cube me-2"></i>Dimensional Limits</h6>
+        <p>${seller.dimensionalLimits ? `${seller.dimensionalLimits.l} x ${seller.dimensionalLimits.w} x ${seller.dimensionalLimits.h} cm` : 'Not specified'}</p>
+      </div>
+    </div>
+    ` : ''}
+    
+    <hr>
+    <div class="row">
+      <div class="col-12">
+        <h6><i class="fas fa-clock me-2"></i>Timeline</h6>
+        <p><strong>Application Date:</strong> ${new Date(seller.createdAt).toLocaleString()}</p>
+        ${seller.verifiedAt ? `<p><strong>Verified Date:</strong> ${new Date(seller.verifiedAt).toLocaleString()}</p>` : ''}
+        ${seller.rejectedAt ? `<p><strong>Rejected Date:</strong> ${new Date(seller.rejectedAt).toLocaleString()}</p>` : ''}
+        ${seller.rejectionReason ? `<p><strong>Rejection Reason:</strong> ${seller.rejectionReason}</p>` : ''}
+      </div>
+    </div>
+  `;
+  
+  // Set modal footer based on seller type
+  if (type === 'onboarding') {
+    modalFooter.innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-danger" onclick="showSellerRejectModal('${seller.sellerId}')" data-bs-dismiss="modal">
+        <i class="fas fa-times me-2"></i>Reject
+      </button>
+      <button type="button" class="btn btn-success" onclick="verifySeller('${seller.sellerId}')" data-bs-dismiss="modal">
+        <i class="fas fa-check me-2"></i>Verify & Approve
+      </button>
+    `;
+  } else {
+    modalFooter.innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    `;
+  }
+  
+  const modal = new bootstrap.Modal(document.getElementById('sellerModal'));
+  modal.show();
+}
+
+// Verify seller
+async function verifySeller(sellerId) {
+  try {
+    const response = await fetch(`/api/sellers/${sellerId}/verify`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      // Show seller credentials modal
+      document.getElementById('credentialsSellerName').textContent = result.data.seller.name;
+      document.getElementById('credentialsBusinessName').textContent = result.data.seller.businessName;
+      document.getElementById('credentialsUsername').value = result.data.credentials.username;
+      document.getElementById('credentialsPassword').value = result.data.credentials.password;
+      document.getElementById('credentialsLoginUrl').value = window.location.origin + result.data.credentials.loginUrl;
+      
+      const modal = new bootstrap.Modal(document.getElementById('sellerCredentialsModal'));
+      modal.show();
+      
+      // Refresh data
+      sellerOnboardingData = [];
+      sellerVerifiedData = [];
+      await Promise.all([loadSellerOnboardingRequests(), loadSellerVerified()]);
+      updateStatistics();
+    } else {
+      showAlert('error', result.message || 'Failed to verify seller');
+    }
+  } catch (error) {
+    console.error('Error verifying seller:', error);
+    showAlert('error', 'Failed to verify seller');
+  }
+}
+
+// Show reject modal for seller
+function showSellerRejectModal(sellerId) {
+  document.getElementById('rejectSellerId').value = sellerId;
+  document.getElementById('rejectSellerReason').value = '';
+  
+  const modal = new bootstrap.Modal(document.getElementById('rejectSellerModal'));
+  modal.show();
+}
+
+// Confirm rejection for seller
+async function confirmSellerReject() {
+  const sellerId = document.getElementById('rejectSellerId').value;
+  const reason = document.getElementById('rejectSellerReason').value.trim();
+  
+  if (!reason) {
+    showAlert('error', 'Please provide a rejection reason');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/sellers/${sellerId}/reject`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason }),
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showAlert('success', 'Seller rejected successfully');
+      
+      // Close modal
+      bootstrap.Modal.getInstance(document.getElementById('rejectSellerModal')).hide();
+      
+      // Refresh data
+      sellerOnboardingData = [];
+      sellerRejectedData = [];
+      await Promise.all([loadSellerOnboardingRequests(), loadSellerRejected()]);
+      updateStatistics();
+    } else {
+      showAlert('error', result.message || 'Failed to reject seller');
+    }
+  } catch (error) {
+    console.error('Error rejecting seller:', error);
+    showAlert('error', 'Failed to reject seller');
+  }
+}
+
 // Utility functions
 function showLoadingSpinner(spinnerId) {
   const spinner = document.getElementById(spinnerId);
@@ -866,6 +1574,28 @@ function showAlert(type, message) {
       bsAlert.close();
     }
   }, 5000);
+}
+
+function copyToClipboard(elementId) {
+  const input = document.getElementById(elementId);
+  input.select();
+  document.execCommand('copy');
+  
+  showAlert('success', 'Copied to clipboard: ' + input.value);
+}
+
+function downloadCredentials() {
+  const username = document.getElementById('credentialsUsername').value;
+  const password = document.getElementById('credentialsPassword').value;
+  const loginUrl = document.getElementById('credentialsLoginUrl').value;
+  
+  const element = document.createElement('a');
+  const file = new Blob([`Username: ${username}\nPassword: ${password}\nLogin URL: ${loginUrl}`], { type: 'text/plain' });
+  element.href = URL.createObjectURL(file);
+  element.download = 'credentials.txt';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
 }
 </script>
 

@@ -30,9 +30,42 @@ const login = (req, res) => {
 const showDashboard = async (req, res) => {
   try {
     const provider = req.user;
+
+    // Get the correct provider ID
+    const providerId = provider._id || provider.id || provider.providerId;
+
+    // Get shipment requests for this provider
+    const providerQuoteService = require("../services/providerQuoteService");
+    const requests = await providerQuoteService.getProviderRequests(providerId);
+
+    // Separate requests by status
+    const pendingRequests = requests.filter((req) => req.status === "pending");
+    const acceptedRequests = requests.filter(
+      (req) => req.status === "accepted"
+    );
+    const rejectedRequests = requests.filter(
+      (req) => req.status === "rejected"
+    );
+
+    // Calculate stats
+    const stats = {
+      totalRequests: requests.length,
+      pendingRequests: pendingRequests.length,
+      acceptedRequests: acceptedRequests.length,
+      rejectedRequests: rejectedRequests.length,
+      totalRevenue: acceptedRequests.reduce((sum, req) => {
+        return (
+          sum + (req.providerResponse?.actualCost || req.requestedCost || 0)
+        );
+      }, 0),
+    };
+
     res.render("providerPage/dashboard", {
       title: "Provider Dashboard",
       provider: provider,
+      requests: requests,
+      pendingRequests: pendingRequests,
+      stats: stats,
     });
   } catch (error) {
     console.error("Error loading dashboard:", error);

@@ -1,0 +1,692 @@
+<%- include('partials/header', { title: 'Provider Quotes - TrackSmart' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      Provider Quotes
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="text-white" href="/">Home</a></li>
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/seller/dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/api/sellers/my-shipments">Shipments</a>
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Quotes
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Quote Comparison Section Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <!-- Shipment Details Card -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="bg-light p-4 rounded shadow-sm">
+          <h4 class="mb-3">
+            <i class="fas fa-box me-2 text-primary"></i>Shipment Details
+          </h4>
+          <div class="row" id="shipmentDetailsContainer">
+            <!-- Shipment details will be loaded here -->
+            <div class="col-12 text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading shipment details...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="quotesLoadingSpinner" class="text-center py-5">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="width: 3rem; height: 3rem"
+      >
+        <span class="visually-hidden">Loading quotes...</span>
+      </div>
+      <p class="mt-3 text-muted">Getting quotes from providers...</p>
+    </div>
+
+    <!-- Quotes Section -->
+    <div id="quotesSection" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+          <i class="fas fa-tag me-2 text-primary"></i>Provider Quotes
+        </h4>
+        <button id="refreshQuotesBtn" class="btn btn-outline-primary">
+          <i class="fas fa-sync-alt me-2"></i>Refresh Quotes
+        </button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <select id="sortByFilter" class="form-select">
+            <option value="cost">Sort by Cost (Low to High)</option>
+            <option value="cost-desc">Sort by Cost (High to Low)</option>
+            <option value="time">Sort by Delivery Time (Fast to Slow)</option>
+            <option value="time-desc">
+              Sort by Delivery Time (Slow to Fast)
+            </option>
+            <option value="rating">Sort by Provider Rating</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select id="serviceTypeFilter" class="form-select">
+            <option value="">All Service Types</option>
+            <option value="same-day">Same Day</option>
+            <option value="express">Express</option>
+            <option value="standard">Standard</option>
+            <option value="overnight">Overnight</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="insuranceFilter"
+            />
+            <label class="form-check-label" for="insuranceFilter">
+              Insurance Available Only
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quotes Container -->
+      <div id="quotesContainer" class="row">
+        <!-- Quote cards will be loaded here -->
+      </div>
+    </div>
+
+    <!-- No Quotes State -->
+    <div id="noQuotesState" class="text-center py-5 d-none">
+      <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+      <h5>No Quotes Available</h5>
+      <p class="text-muted mb-4">
+        We couldn't get quotes from providers for this shipment at the moment.
+        This could be due to route restrictions, weight/dimension limits, or
+        provider availability.
+      </p>
+      <button id="retryQuotesBtn" class="btn btn-primary">
+        <i class="fas fa-redo me-2"></i>Try Again
+      </button>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="text-center py-5 d-none">
+      <i class="fas fa-times-circle fa-4x text-danger mb-4"></i>
+      <h5>Error Loading Quotes</h5>
+      <p class="text-muted mb-4" id="errorMessage">
+        An error occurred while fetching quotes from providers.
+      </p>
+      <button id="retryQuotesBtn2" class="btn btn-primary">
+        <i class="fas fa-redo me-2"></i>Try Again
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Quote Comparison Section End -->
+
+<!-- Quote Selection Modal -->
+<div
+  class="modal fade"
+  id="quoteSelectionModal"
+  tabindex="-1"
+  aria-labelledby="quoteSelectionModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quoteSelectionModalLabel">
+          Confirm Quote Selection
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div id="selectedQuoteDetails">
+          <!-- Selected quote details will be shown here -->
+        </div>
+
+        <hr />
+
+        <h6>Additional Options</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="pickupRequiredCheck"
+                checked
+              />
+              <label class="form-check-label" for="pickupRequiredCheck">
+                Request Pickup Service
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="trackingRequiredCheck"
+                checked
+              />
+              <label class="form-check-label" for="trackingRequiredCheck">
+                Enable Tracking
+              </label>
+            </div>
+          </div>
+          <div class="col-12 mt-3">
+            <div
+              class="form-check"
+              id="insuranceCheckContainer"
+              style="display: none"
+            >
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="insuranceRequiredCheck"
+              />
+              <label class="form-check-label" for="insuranceRequiredCheck">
+                Add Insurance Coverage (<span id="insuranceCostDisplay">₹0</span
+                >)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label for="sellerNotes" class="form-label"
+            >Notes for Provider (Optional)</label
+          >
+          <textarea
+            class="form-control"
+            id="sellerNotes"
+            rows="3"
+            placeholder="Any special instructions or requirements..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="confirmQuoteSelection"
+        >
+          <i class="fas fa-check me-2"></i>Confirm Selection
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shipmentId = urlParams.get("shipmentId");
+
+    if (!shipmentId) {
+      window.location.href = "/api/sellers/my-shipments";
+      return;
+    }
+
+    let currentQuotes = [];
+    let selectedQuote = null;
+    let shipmentData = null;
+
+    // Load shipment details and quotes
+    loadShipmentDetails();
+    loadQuotes();
+
+    // Event listeners
+    document
+      .getElementById("refreshQuotesBtn")
+      ?.addEventListener("click", refreshQuotes);
+    document
+      .getElementById("retryQuotesBtn")
+      ?.addEventListener("click", loadQuotes);
+    document
+      .getElementById("retryQuotesBtn2")
+      ?.addEventListener("click", loadQuotes);
+    document
+      .getElementById("sortByFilter")
+      ?.addEventListener("change", filterAndSortQuotes);
+    document
+      .getElementById("serviceTypeFilter")
+      ?.addEventListener("change", filterAndSortQuotes);
+    document
+      .getElementById("insuranceFilter")
+      ?.addEventListener("change", filterAndSortQuotes);
+    document
+      .getElementById("confirmQuoteSelection")
+      ?.addEventListener("click", confirmQuoteSelection);
+
+    async function loadShipmentDetails() {
+      try {
+        const response = await fetch(`/api/sellers/shipments/${shipmentId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          shipmentData = data.data.shipment;
+          renderShipmentDetails(shipmentData);
+        } else {
+          console.error("Failed to load shipment details:", data.message);
+        }
+      } catch (error) {
+        console.error("Error loading shipment details:", error);
+      }
+    }
+
+    async function loadQuotes() {
+      showLoadingState();
+
+      try {
+        const response = await fetch(
+          `/api/sellers/shipments/${shipmentId}/quotes`
+        );
+        const data = await response.json();
+
+        if (data.success) {
+          currentQuotes = data.data.quotes;
+          if (currentQuotes.length > 0) {
+            showQuotesSection();
+            filterAndSortQuotes();
+          } else {
+            showNoQuotesState();
+          }
+        } else {
+          showErrorState(data.message);
+        }
+      } catch (error) {
+        console.error("Error loading quotes:", error);
+        showErrorState("Network error while loading quotes");
+      }
+    }
+
+    async function refreshQuotes() {
+      const refreshBtn = document.getElementById("refreshQuotesBtn");
+      const originalText = refreshBtn.innerHTML;
+      refreshBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+      refreshBtn.disabled = true;
+
+      try {
+        const response = await fetch(
+          `/api/sellers/shipments/${shipmentId}/quotes/refresh`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Wait a moment for providers to respond, then reload quotes
+          setTimeout(() => {
+            loadQuotes();
+            refreshBtn.innerHTML = originalText;
+            refreshBtn.disabled = false;
+          }, 3000);
+        } else {
+          console.error("Failed to refresh quotes:", data.message);
+          refreshBtn.innerHTML = originalText;
+          refreshBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error("Error refreshing quotes:", error);
+        refreshBtn.innerHTML = originalText;
+        refreshBtn.disabled = false;
+      }
+    }
+
+    function renderShipmentDetails(shipment) {
+      const container = document.getElementById("shipmentDetailsContainer");
+      container.innerHTML = `
+      <div class="col-md-6">
+        <h6>Parcel Information</h6>
+        <p><strong>Name:</strong> ${shipment.parcelName}</p>
+        <p><strong>Weight:</strong> ${shipment.weight} kg</p>
+        <p><strong>Dimensions:</strong> ${shipment.dimensions.length} × ${
+        shipment.dimensions.width
+      } × ${shipment.dimensions.height} cm</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Delivery Route</h6>
+        <p><strong>From:</strong> ${shipment.sender.address} (${
+        shipment.sender.pincode
+      })</p>
+        <p><strong>To:</strong> ${shipment.receiver.address} (${
+        shipment.receiver.pincode
+      })</p>
+        <p><strong>Distance:</strong> ${
+          shipment.distance
+            ? shipment.distance.toFixed(1) + " km"
+            : "Calculating..."
+        }</p>
+      </div>
+    `;
+    }
+
+    function filterAndSortQuotes() {
+      const sortBy = document.getElementById("sortByFilter").value;
+      const serviceType = document.getElementById("serviceTypeFilter").value;
+      const insuranceOnly = document.getElementById("insuranceFilter").checked;
+
+      let filteredQuotes = currentQuotes.filter((quote) => {
+        if (serviceType && quote.serviceType !== serviceType) return false;
+        if (insuranceOnly && !quote.insuranceAvailable) return false;
+        return true;
+      });
+
+      // Sort quotes
+      filteredQuotes.sort((a, b) => {
+        switch (sortBy) {
+          case "cost":
+            return a.estimatedCost - b.estimatedCost;
+          case "cost-desc":
+            return b.estimatedCost - a.estimatedCost;
+          case "time":
+            return a.estimatedDeliveryTime - b.estimatedDeliveryTime;
+          case "time-desc":
+            return b.estimatedDeliveryTime - a.estimatedDeliveryTime;
+          default:
+            return a.estimatedCost - b.estimatedCost;
+        }
+      });
+
+      renderQuotes(filteredQuotes);
+    }
+
+    function renderQuotes(quotes) {
+      const container = document.getElementById("quotesContainer");
+
+      if (quotes.length === 0) {
+        container.innerHTML = `
+        <div class="col-12 text-center py-4">
+          <p class="text-muted">No quotes match your current filters.</p>
+        </div>
+      `;
+        return;
+      }
+
+      container.innerHTML = quotes
+        .map(
+          (quote, index) => `
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100 ${
+          index === 0 ? "border-primary" : ""
+        }" style="transition: all 0.3s ease;">
+          ${
+            index === 0
+              ? '<div class="card-header bg-primary text-white text-center"><small><i class="fas fa-star me-1"></i>Best Value</small></div>'
+              : ""
+          }
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="card-title mb-0">${quote.provider.name}</h5>
+              <span class="badge bg-secondary">${quote.serviceType.toUpperCase()}</span>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-6">
+                <div class="text-center p-3 bg-light rounded">
+                  <h3 class="text-primary mb-1">₹${quote.estimatedCost}</h3>
+                  <small class="text-muted">Estimated Cost</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center p-3 bg-light rounded">
+                  <h3 class="text-info mb-1">${Math.ceil(
+                    quote.estimatedDeliveryTime / 24
+                  )}</h3>
+                  <small class="text-muted">Days</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <small class="text-muted">Services Included:</small>
+              <div class="mt-1">
+                ${
+                  quote.pickupAvailable
+                    ? '<span class="badge bg-success me-1"><i class="fas fa-truck me-1"></i>Pickup</span>'
+                    : ""
+                }
+                ${
+                  quote.trackingAvailable
+                    ? '<span class="badge bg-success me-1"><i class="fas fa-search me-1"></i>Tracking</span>'
+                    : ""
+                }
+                ${
+                  quote.insuranceAvailable
+                    ? `<span class="badge bg-success me-1"><i class="fas fa-shield-alt me-1"></i>Insurance (+₹${quote.insuranceCost.toFixed(
+                        2
+                      )})</span>`
+                    : ""
+                }
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <small class="text-muted">Provider ID: ${
+                quote.provider.bppId
+              }</small><br>
+              <small class="text-muted">Response Time: ${
+                quote.responseTime
+              }ms</small>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary w-100" onclick="selectQuote('${
+              quote.id
+            }')">
+              <i class="fas fa-check me-2"></i>Select This Quote
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+        )
+        .join("");
+    }
+
+    window.selectQuote = function (quoteId) {
+      selectedQuote = currentQuotes.find((q) => q.id === quoteId);
+      if (selectedQuote) {
+        showQuoteSelectionModal(selectedQuote);
+      }
+    };
+
+    function showQuoteSelectionModal(quote) {
+      const modal = new bootstrap.Modal(
+        document.getElementById("quoteSelectionModal")
+      );
+
+      document.getElementById("selectedQuoteDetails").innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <h6>${quote.provider.name}</h6>
+          <div class="row">
+            <div class="col-6">
+              <strong>Cost:</strong> ₹${quote.estimatedCost}
+            </div>
+            <div class="col-6">
+              <strong>Delivery:</strong> ${Math.ceil(
+                quote.estimatedDeliveryTime / 24
+              )} days
+            </div>
+          </div>
+          <div class="mt-2">
+            <strong>Service:</strong> ${quote.serviceType.toUpperCase()}
+          </div>
+        </div>
+      </div>
+    `;
+
+      // Configure insurance option
+      const insuranceContainer = document.getElementById(
+        "insuranceCheckContainer"
+      );
+      const insuranceCostDisplay = document.getElementById(
+        "insuranceCostDisplay"
+      );
+
+      if (quote.insuranceAvailable) {
+        insuranceContainer.style.display = "block";
+        insuranceCostDisplay.textContent = `₹${quote.insuranceCost.toFixed(2)}`;
+      } else {
+        insuranceContainer.style.display = "none";
+      }
+
+      // Configure other options based on quote
+      document.getElementById("pickupRequiredCheck").checked =
+        quote.pickupAvailable;
+      document.getElementById("pickupRequiredCheck").disabled =
+        !quote.pickupAvailable;
+
+      document.getElementById("trackingRequiredCheck").checked =
+        quote.trackingAvailable;
+      document.getElementById("trackingRequiredCheck").disabled =
+        !quote.trackingAvailable;
+
+      modal.show();
+    }
+
+    async function confirmQuoteSelection() {
+      if (!selectedQuote) return;
+
+      const confirmBtn = document.getElementById("confirmQuoteSelection");
+      const originalText = confirmBtn.innerHTML;
+      confirmBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin me-2"></i>Creating Request...';
+      confirmBtn.disabled = true;
+
+      const requestData = {
+        pickupRequired: document.getElementById("pickupRequiredCheck").checked,
+        trackingRequired: document.getElementById("trackingRequiredCheck")
+          .checked,
+        insuranceRequired: document.getElementById("insuranceRequiredCheck")
+          .checked,
+        sellerNotes: document.getElementById("sellerNotes").value.trim(),
+      };
+
+      try {
+        const response = await fetch(
+          `/api/sellers/shipments/${shipmentId}/quotes/${selectedQuote.id}/select`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Close modal and redirect to shipments page
+          bootstrap.Modal.getInstance(
+            document.getElementById("quoteSelectionModal")
+          ).hide();
+
+          // Show success message
+          alert(
+            "Shipment request created successfully! The provider will be notified."
+          );
+
+          // Redirect to shipments page
+          window.location.href = "/api/sellers/my-shipments";
+        } else {
+          alert("Failed to create shipment request: " + data.message);
+          confirmBtn.innerHTML = originalText;
+          confirmBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error("Error creating shipment request:", error);
+        alert("Network error while creating shipment request");
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+      }
+    }
+
+    function showLoadingState() {
+      document
+        .getElementById("quotesLoadingSpinner")
+        .classList.remove("d-none");
+      document.getElementById("quotesSection").classList.add("d-none");
+      document.getElementById("noQuotesState").classList.add("d-none");
+      document.getElementById("errorState").classList.add("d-none");
+    }
+
+    function showQuotesSection() {
+      document.getElementById("quotesLoadingSpinner").classList.add("d-none");
+      document.getElementById("quotesSection").classList.remove("d-none");
+      document.getElementById("noQuotesState").classList.add("d-none");
+      document.getElementById("errorState").classList.add("d-none");
+    }
+
+    function showNoQuotesState() {
+      document.getElementById("quotesLoadingSpinner").classList.add("d-none");
+      document.getElementById("quotesSection").classList.add("d-none");
+      document.getElementById("noQuotesState").classList.remove("d-none");
+      document.getElementById("errorState").classList.add("d-none");
+    }
+
+    function showErrorState(message) {
+      document.getElementById("quotesLoadingSpinner").classList.add("d-none");
+      document.getElementById("quotesSection").classList.add("d-none");
+      document.getElementById("noQuotesState").classList.add("d-none");
+      document.getElementById("errorState").classList.remove("d-none");
+      document.getElementById("errorMessage").textContent = message;
+    }
+  });
+</script>
+
+<style>
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .badge {
+    font-size: 0.75em;
+  }
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+  }
+</style>

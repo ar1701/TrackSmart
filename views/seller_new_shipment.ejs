@@ -1,0 +1,585 @@
+<%- include('partials/header', { title: 'Create New Shipment - TrackSmart' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      Create New Shipment
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/api/sellers/dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          New Shipment
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Shipment Form Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+      <h6 class="text-secondary text-uppercase">Ship with Confidence</h6>
+      <h1 class="mb-5">Initialize Your Shipment</h1>
+      <p class="mb-5">
+        Fill in the details below to create a new shipment. We'll calculate the
+        distance and provide cost estimates.
+      </p>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer" class="mb-4"></div>
+
+    <!-- Distance Display -->
+    <div id="distanceDisplay" class="alert alert-info d-none" role="alert">
+      <h5 class="alert-heading">
+        <i class="fas fa-route me-2"></i>Distance Calculated
+      </h5>
+      <p class="mb-0">
+        Distance between source and destination:
+        <strong id="calculatedDistance">-</strong> km
+      </p>
+    </div>
+
+    <form id="shipmentForm" class="wow fadeInUp" data-wow-delay="0.3s">
+      <div class="row g-4">
+        <!-- Parcel Information -->
+        <div class="col-12">
+          <div class="bg-light p-4 rounded">
+            <h4 class="mb-4">
+              <i class="fas fa-box me-2 text-primary"></i>Parcel Information
+            </h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="parcelName" class="form-label"
+                  >Parcel Name <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="parcelName"
+                  name="parcelName"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="weight" class="form-label"
+                  >Weight (kg) <span class="text-danger">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="weight"
+                  name="weight"
+                  step="0.1"
+                  min="0.1"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="length" class="form-label"
+                  >Length (cm) <span class="text-danger">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="length"
+                  name="length"
+                  min="1"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="width" class="form-label"
+                  >Width (cm) <span class="text-danger">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="width"
+                  name="width"
+                  min="1"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="height" class="form-label"
+                  >Height (cm) <span class="text-danger">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="height"
+                  name="height"
+                  min="1"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-user-tie me-2 text-primary"></i>Sender
+              Information
+            </h4>
+            <div class="mb-3">
+              <label for="senderName" class="form-label"
+                >Sender Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="senderName"
+                name="senderName"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="senderAddress" class="form-label"
+                >Sender Address <span class="text-danger">*</span></label
+              >
+              <textarea
+                class="form-control"
+                id="senderAddress"
+                name="senderAddress"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="senderContact" class="form-label"
+                >Sender Contact <span class="text-danger">*</span></label
+              >
+              <input
+                type="tel"
+                class="form-control"
+                id="senderContact"
+                name="senderContact"
+                pattern="[0-9+\-\s\(\)]+"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="sourcePincode" class="form-label"
+                >Source Pincode <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="sourcePincode"
+                name="sourcePincode"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                required
+              />
+              <div class="form-text">Enter 6-digit pincode</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiver Information -->
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-user me-2 text-primary"></i>Receiver Information
+            </h4>
+            <div class="mb-3">
+              <label for="receiverName" class="form-label"
+                >Receiver Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="receiverName"
+                name="receiverName"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="receiverAddress" class="form-label"
+                >Receiver Address <span class="text-danger">*</span></label
+              >
+              <textarea
+                class="form-control"
+                id="receiverAddress"
+                name="receiverAddress"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="receiverContact" class="form-label"
+                >Receiver Contact <span class="text-danger">*</span></label
+              >
+              <input
+                type="tel"
+                class="form-control"
+                id="receiverContact"
+                name="receiverContact"
+                pattern="[0-9+\-\s\(\)]+"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="destinationPincode" class="form-label"
+                >Destination Pincode <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="destinationPincode"
+                name="destinationPincode"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                required
+              />
+              <div class="form-text">Enter 6-digit pincode</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="col-12 text-center mt-5">
+          <button
+            type="button"
+            id="calculateDistanceBtn"
+            class="btn btn-outline-primary btn-lg me-3"
+          >
+            <i class="fas fa-calculator me-2"></i>Calculate Distance
+          </button>
+          <button type="submit" id="submitBtn" class="btn btn-primary btn-lg">
+            <i class="fas fa-paper-plane me-2"></i>Create Shipment
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Shipment Form End -->
+
+<%- include('partials/footer') %>
+
+<!-- Custom JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("shipmentForm");
+    const calculateDistanceBtn = document.getElementById(
+      "calculateDistanceBtn"
+    );
+    const distanceDisplay = document.getElementById("distanceDisplay");
+    const alertContainer = document.getElementById("alertContainer");
+
+    let calculatedDistance = null;
+    let sourceLocation = null;
+    let destinationLocation = null;
+
+    // Show alert function
+    function showAlert(message, type = "danger") {
+      alertContainer.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+      alertContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    // Clear alerts
+    function clearAlerts() {
+      alertContainer.innerHTML = "";
+    }
+
+    // Validate pincode
+    function validatePincode(pincode) {
+      return /^\d{6}$/.test(pincode);
+    }
+
+    // Calculate distance between pincodes
+    calculateDistanceBtn.addEventListener("click", async function () {
+      clearAlerts();
+
+      const sourcePincode = document
+        .getElementById("sourcePincode")
+        .value.trim();
+      const destinationPincode = document
+        .getElementById("destinationPincode")
+        .value.trim();
+
+      if (!sourcePincode || !destinationPincode) {
+        showAlert(
+          "Please enter both source and destination pincodes to calculate distance."
+        );
+        return;
+      }
+
+      if (
+        !validatePincode(sourcePincode) ||
+        !validatePincode(destinationPincode)
+      ) {
+        showAlert("Please enter valid 6-digit pincodes.");
+        return;
+      }
+
+      if (sourcePincode === destinationPincode) {
+        showAlert("Source and destination pincodes cannot be the same.");
+        return;
+      }
+
+      try {
+        calculateDistanceBtn.disabled = true;
+        calculateDistanceBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
+
+        const response = await fetch("/api/sellers/calculate-distance", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sourcePincode: sourcePincode,
+            destinationPincode: destinationPincode,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          calculatedDistance = data.data.distance;
+          sourceLocation = data.data.source;
+          destinationLocation = data.data.destination;
+
+          document.getElementById("calculatedDistance").textContent =
+            calculatedDistance;
+          distanceDisplay.classList.remove("d-none");
+
+          showAlert(
+            `Distance calculated successfully: ${calculatedDistance} km`,
+            "success"
+          );
+        } else {
+          showAlert(
+            data.message ||
+              "Failed to calculate distance. Please check the pincodes and try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error calculating distance:", error);
+        showAlert(
+          "An error occurred while calculating distance. Please try again."
+        );
+      } finally {
+        calculateDistanceBtn.disabled = false;
+        calculateDistanceBtn.innerHTML =
+          '<i class="fas fa-calculator me-2"></i>Calculate Distance';
+      }
+    });
+
+    // Form submission
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      clearAlerts();
+
+      // Basic validation
+      const requiredFields = form.querySelectorAll("[required]");
+      let isValid = true;
+
+      requiredFields.forEach((field) => {
+        if (!field.value.trim()) {
+          isValid = false;
+          field.classList.add("is-invalid");
+        } else {
+          field.classList.remove("is-invalid");
+        }
+      });
+
+      if (!isValid) {
+        showAlert("Please fill in all required fields.");
+        return;
+      }
+
+      // Validate pincodes
+      const sourcePincode = document
+        .getElementById("sourcePincode")
+        .value.trim();
+      const destinationPincode = document
+        .getElementById("destinationPincode")
+        .value.trim();
+
+      if (
+        !validatePincode(sourcePincode) ||
+        !validatePincode(destinationPincode)
+      ) {
+        showAlert("Please enter valid 6-digit pincodes.");
+        return;
+      }
+
+      try {
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Creating Shipment...';
+
+        const formData = {
+          parcelName: document.getElementById("parcelName").value.trim(),
+          weight: parseFloat(document.getElementById("weight").value),
+          dimensions: {
+            length: parseInt(document.getElementById("length").value),
+            width: parseInt(document.getElementById("width").value),
+            height: parseInt(document.getElementById("height").value),
+          },
+          sender: {
+            name: document.getElementById("senderName").value.trim(),
+            address: document.getElementById("senderAddress").value.trim(),
+            contact: document.getElementById("senderContact").value.trim(),
+            pincode: sourcePincode,
+          },
+          receiver: {
+            name: document.getElementById("receiverName").value.trim(),
+            address: document.getElementById("receiverAddress").value.trim(),
+            contact: document.getElementById("receiverContact").value.trim(),
+            pincode: destinationPincode,
+          },
+          distance: calculatedDistance,
+          sourceLocation: sourceLocation,
+          destinationLocation: destinationLocation,
+        };
+
+        const response = await fetch("/api/sellers/shipments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const shipmentId = data.data.shipment.id;
+          const quotesReceived = data.data.quotes.quotesReceived || 0;
+
+          if (quotesReceived > 0) {
+            showAlert(
+              `Shipment created successfully! Received ${quotesReceived} quotes. Redirecting to quotes comparison...`,
+              "success"
+            );
+
+            // Redirect to quotes page
+            setTimeout(() => {
+              window.location.href = `/api/sellers/quotes?shipmentId=${shipmentId}`;
+            }, 2000);
+          } else {
+            showAlert(
+              `Shipment created successfully! No quotes available at the moment. You can request quotes later.`,
+              "warning"
+            );
+
+            // Redirect to shipments list
+            setTimeout(() => {
+              window.location.href = "/api/sellers/my-shipments";
+            }, 3000);
+          }
+
+          // Reset form after successful submission
+          setTimeout(() => {
+            form.reset();
+            distanceDisplay.classList.add("d-none");
+            calculatedDistance = null;
+            sourceLocation = null;
+            destinationLocation = null;
+          }, 2000);
+        } else {
+          showAlert(
+            data.message || "Failed to create shipment. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error creating shipment:", error);
+        showAlert(
+          "An error occurred while creating the shipment. Please try again."
+        );
+      } finally {
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML =
+          '<i class="fas fa-paper-plane me-2"></i>Create Shipment';
+      }
+    });
+
+    // Auto-calculate distance when both pincodes are entered
+    const sourcePincodeInput = document.getElementById("sourcePincode");
+    const destinationPincodeInput =
+      document.getElementById("destinationPincode");
+
+    function autoCalculateDistance() {
+      const sourcePincode = sourcePincodeInput.value.trim();
+      const destinationPincode = destinationPincodeInput.value.trim();
+
+      if (
+        validatePincode(sourcePincode) &&
+        validatePincode(destinationPincode) &&
+        sourcePincode !== destinationPincode
+      ) {
+        calculateDistanceBtn.click();
+      }
+    }
+
+    sourcePincodeInput.addEventListener("input", function () {
+      if (this.value.length === 6) {
+        setTimeout(autoCalculateDistance, 500);
+      }
+    });
+
+    destinationPincodeInput.addEventListener("input", function () {
+      if (this.value.length === 6) {
+        setTimeout(autoCalculateDistance, 500);
+      }
+    });
+  });
+</script>
+
+<style>
+  .is-invalid {
+    border-color: #dc3545 !important;
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  .btn-outline-primary:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  #distanceDisplay {
+    border-left: 4px solid #0dcaf0;
+  }
+
+  .alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
+  }
+</style>

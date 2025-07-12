@@ -97,6 +97,257 @@ router.get("/main-login", (req, res) => {
   });
 });
 
+// Unified login API endpoint
+router.post("/main-login", async (req, res) => {
+  try {
+    const { username, password, userType, rememberMe } = req.body;
+
+    // Validate required fields
+    if (!username || !password || !userType) {
+      return res.status(400).json({
+        success: false,
+        message: "Username, password, and user type are required",
+      });
+    }
+
+    // Import required controllers and models
+    const bcrypt = require("bcryptjs");
+    const { handleResponse } = require("../utils/responseHandler");
+
+    let result;
+
+    switch (userType) {
+      case "seller":
+        const Seller = require("../model/seller");
+
+        // Find seller by username or email
+        const seller = await Seller.findOne({
+          $or: [{ username: username }, { email: username.toLowerCase() }],
+          isVerified: true,
+          status: "verified",
+        });
+
+        if (!seller) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials or account not verified",
+          });
+        }
+
+        // Check password
+        const isSellerPasswordMatch = await bcrypt.compare(
+          password,
+          seller.password
+        );
+        if (!isSellerPasswordMatch) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials",
+          });
+        }
+
+        // Create session
+        req.session.user = {
+          id: seller._id,
+          type: "seller",
+          sellerId: seller.sellerId,
+          name: seller.name,
+          email: seller.email,
+        };
+
+        if (rememberMe) {
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+        }
+
+        result = {
+          success: true,
+          message: "Login successful",
+          data: {
+            user: {
+              id: seller._id,
+              type: "seller",
+              name: seller.name,
+              email: seller.email,
+              businessName: seller.businessName,
+            },
+            redirectUrl: "/seller/dashboard",
+          },
+        };
+        break;
+
+      case "admin":
+        const Admin = require("../model/admin");
+
+        // Find admin by username or email
+        const admin = await Admin.findOne({
+          $or: [{ username: username }, { email: username.toLowerCase() }],
+          isActive: true,
+        });
+
+        if (!admin) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials or account disabled",
+          });
+        }
+
+        // Check password (plain text comparison for admin)
+        const isAdminPasswordMatch = admin.password === password;
+        if (!isAdminPasswordMatch) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials",
+          });
+        }
+
+        // Update last login
+        admin.lastLogin = new Date();
+        admin.lastActivity = new Date();
+        await admin.save();
+
+        // Create session
+        req.session.user = {
+          id: admin._id,
+          type: "admin",
+          adminId: admin.adminId,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role,
+          permissions: admin.permissions,
+        };
+
+        req.session.admin = {
+          id: admin._id,
+          adminId: admin.adminId,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role,
+          permissions: admin.permissions,
+        };
+
+        if (rememberMe) {
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+        }
+
+        result = {
+          success: true,
+          message: "Login successful",
+          data: {
+            user: {
+              id: admin._id,
+              type: "admin",
+              name: admin.name,
+              email: admin.email,
+              role: admin.role,
+            },
+            redirectUrl: "/admin/dashboard",
+          },
+        };
+        break;
+
+      case "user":
+        // TODO: Implement user login logic
+        return res.status(501).json({
+          success: false,
+          message: "User login not yet implemented",
+        });
+
+      case "provider":
+        const Provider = require("../model/provider");
+
+        // Find provider by username, email, or bppId
+        const provider = await Provider.findOne({
+          $or: [
+            { username: username },
+            { email: username.toLowerCase() },
+            { bppId: username },
+          ],
+          isVerified: true,
+        });
+
+        if (!provider) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials or account not verified",
+          });
+        }
+
+        // Check if provider is rejected
+        if (provider.rejectedAt) {
+          return res.status(401).json({
+            success: false,
+            message: "Account has been rejected. Contact admin for assistance.",
+          });
+        }
+
+        // Check password - support both stored password and fallback methods
+        let isPasswordValid = false;
+
+        if (provider.password) {
+          // If provider has a stored password, use it
+          isPasswordValid = password === provider.password;
+        } else {
+          // Fallback to email or bppId for legacy providers
+          isPasswordValid =
+            password === provider.email || password === provider.bppId;
+        }
+
+        if (!isPasswordValid) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid credentials",
+          });
+        }
+
+        // Create session
+        req.session.user = {
+          id: provider._id,
+          type: "provider",
+          providerId: provider._id,
+          bppId: provider.bppId,
+          name: provider.name,
+          email: provider.email,
+        };
+
+        if (rememberMe) {
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+        }
+
+        result = {
+          success: true,
+          message: "Login successful",
+          data: {
+            user: {
+              id: provider._id,
+              type: "provider",
+              bppId: provider.bppId,
+              name: provider.name,
+              email: provider.email,
+              isVerified: provider.isVerified,
+            },
+            redirectUrl: "/dashboard",
+          },
+        };
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user type",
+        });
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Main login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Login processing error",
+      data: { error: error.message },
+    });
+  }
+});
+
 // User registration page
 router.get("/register-user", (req, res) => {
   res.render("register_user", {

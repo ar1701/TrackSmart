@@ -73,6 +73,20 @@ app.use("/api", apiRoutes);
 // Authentication Routes
 app.use("/", authRoutes);
 
+// Seller Dashboard View Route (non-API)
+app.get("/seller/dashboard", (req, res) => {
+  // Check if seller is authenticated
+  if (req.session && req.session.user && req.session.user.type === "seller") {
+    res.render("seller_dashboard", {
+      title: "Seller Dashboard - TrackSmart",
+      currentPage: "dashboard",
+      user: req.session.user,
+    });
+  } else {
+    res.redirect("/main-login");
+  }
+});
+
 // User Routes
 app.use("/api/users", userRoutes);
 
@@ -83,7 +97,7 @@ app.use("/api/sellers", sellerRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Provider Routes
-app.use("/api", providerRoutes);
+app.use("/api/providers", providerRoutes);
 
 // Error handling middleware (should be last)
 app.use(errorHandler);

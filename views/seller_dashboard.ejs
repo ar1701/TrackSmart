@@ -1,0 +1,385 @@
+<%- include('partials/header', { title: 'Seller Dashboard - TrackSmart' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      Seller Dashboard
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="text-white" href="/">Home</a></li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Dashboard
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Dashboard Section Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="bg-light p-4 rounded">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-3">
+                Welcome back, <span id="sellerName">-</span>!
+              </h2>
+              <p class="text-muted mb-0">
+                Manage your shipments and track your business performance
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-outline-danger" onclick="logoutSeller()">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <h4 class="mb-4">
+          <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
+        </h4>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-3">
+            <a
+              href="/api/sellers/new-shipment"
+              class="btn btn-primary btn-lg w-100 p-4"
+            >
+              <i class="fas fa-plus fa-2x mb-3"></i>
+              <div>Create New Shipment</div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <a
+              href="/api/sellers/my-shipments"
+              class="btn btn-outline-primary btn-lg w-100 p-4"
+            >
+              <i class="fas fa-list fa-2x mb-3"></i>
+              <div>View All Shipments</div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <a href="/track" class="btn btn-outline-primary btn-lg w-100 p-4">
+              <i class="fas fa-search fa-2x mb-3"></i>
+              <div>Track Shipments</div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <a
+              href="/api/sellers/profile"
+              class="btn btn-outline-primary btn-lg w-100 p-4"
+            >
+              <i class="fas fa-user fa-2x mb-3"></i>
+              <div>Manage Profile</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <h4 class="mb-4">
+          <i class="fas fa-chart-bar me-2 text-primary"></i>Business Overview
+        </h4>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
+          <h3 class="mb-2" id="totalShipments">-</h3>
+          <p class="text-uppercase text-secondary mb-1">Total Shipments</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+          <h3 class="mb-2" id="pendingShipments">-</h3>
+          <p class="text-uppercase text-secondary mb-1">Pending Shipments</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+          <h3 class="mb-2" id="deliveredShipments">-</h3>
+          <p class="text-uppercase text-secondary mb-1">Delivered</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="bg-light text-center p-4 rounded shadow-sm h-100">
+          <i class="fas fa-rupee-sign fa-3x text-info mb-3"></i>
+          <h3 class="mb-2" id="totalRevenue">₹-</h3>
+          <p class="text-uppercase text-secondary mb-1">Total Revenue</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Shipments -->
+    <div class="row">
+      <div class="col-12">
+        <div class="bg-light p-4 rounded">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              <i class="fas fa-history me-2 text-primary"></i>Recent Shipments
+            </h4>
+            <a href="/api/sellers/my-shipments" class="btn btn-primary"
+              >View All</a
+            >
+          </div>
+
+          <!-- Loading Spinner -->
+          <div id="loadingSpinner" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading recent shipments...</p>
+          </div>
+
+          <!-- Recent Shipments Table -->
+          <div id="recentShipmentsContainer" class="d-none">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Shipment ID</th>
+                    <th>Parcel</th>
+                    <th>Receiver</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentShipmentsTableBody">
+                  <!-- Recent shipments will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="text-center py-4 d-none">
+            <i class="fas fa-shipping-fast fa-4x text-muted mb-4"></i>
+            <h5>No Shipments Yet</h5>
+            <p class="text-muted mb-4">
+              Start by creating your first shipment to see it here.
+            </p>
+            <a href="/api/sellers/new-shipment" class="btn btn-primary">
+              <i class="fas fa-plus me-2"></i>Create First Shipment
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Dashboard Section End -->
+
+<%- include('partials/footer') %>
+
+<!-- Custom JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const recentShipmentsContainer = document.getElementById(
+      "recentShipmentsContainer"
+    );
+    const emptyState = document.getElementById("emptyState");
+    const recentShipmentsTableBody = document.getElementById(
+      "recentShipmentsTableBody"
+    );
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      try {
+        // Load seller dashboard data
+        const dashboardResponse = await fetch("/api/sellers/dashboard");
+        const dashboardData = await dashboardResponse.json();
+
+        if (dashboardData.success) {
+          // Populate seller info
+          document.getElementById("sellerName").textContent =
+            dashboardData.data.seller.name;
+
+          // Update stats (you can enhance this with real data later)
+          document.getElementById("totalShipments").textContent =
+            dashboardData.data.stats.totalOrders || 0;
+          document.getElementById("pendingShipments").textContent =
+            dashboardData.data.stats.pendingOrders || 0;
+          document.getElementById("deliveredShipments").textContent =
+            dashboardData.data.stats.completedOrders || 0;
+          document.getElementById("totalRevenue").textContent =
+            "₹" + (dashboardData.data.stats.totalRevenue || 0);
+        }
+
+        // Load recent shipments
+        const shipmentsResponse = await fetch("/api/sellers/shipments");
+        const shipmentsData = await shipmentsResponse.json();
+
+        if (shipmentsData.success) {
+          const recentShipments = shipmentsData.data.shipments.slice(0, 5); // Show only 5 recent
+
+          if (recentShipments.length === 0) {
+            loadingSpinner.classList.add("d-none");
+            emptyState.classList.remove("d-none");
+          } else {
+            loadingSpinner.classList.add("d-none");
+            recentShipmentsContainer.classList.remove("d-none");
+            renderRecentShipments(recentShipments);
+          }
+        } else {
+          loadingSpinner.classList.add("d-none");
+          emptyState.classList.remove("d-none");
+        }
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+        loadingSpinner.classList.add("d-none");
+        emptyState.classList.remove("d-none");
+      }
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      const statusClasses = {
+        draft: "bg-secondary",
+        confirmed: "bg-info",
+        picked_up: "bg-warning",
+        in_transit: "bg-primary",
+        delivered: "bg-success",
+        cancelled: "bg-danger",
+      };
+
+      const statusLabels = {
+        draft: "Draft",
+        confirmed: "Confirmed",
+        picked_up: "Picked Up",
+        in_transit: "In Transit",
+        delivered: "Delivered",
+        cancelled: "Cancelled",
+      };
+
+      return `<span class="badge ${
+        statusClasses[status] || "bg-secondary"
+      }">${statusLabels[status] || status}</span>`;
+    }
+
+    // Render recent shipments
+    function renderRecentShipments(shipments) {
+      recentShipmentsTableBody.innerHTML = shipments
+        .map(
+          (shipment) => `
+      <tr>
+        <td><strong>${shipment.shipmentId}</strong></td>
+        <td>${shipment.parcelName}</td>
+        <td>
+          <div>${shipment.receiver.name}</div>
+          <small class="text-muted">${shipment.receiver.pincode}</small>
+        </td>
+        <td>${getStatusBadge(shipment.status)}</td>
+        <td>${formatDate(shipment.createdAt)}</td>
+        <td>
+          <a href="/api/sellers/shipments/${
+            shipment.id
+          }" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-eye"></i> View
+          </a>
+        </td>
+      </tr>
+    `
+        )
+        .join("");
+    }
+
+    // Initial load
+    loadDashboardData();
+
+    // Logout function
+    window.logoutSeller = async function () {
+      if (confirm("Are you sure you want to logout?")) {
+        try {
+          const response = await fetch("/api/sellers/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            window.location.href = "/main-login";
+          } else {
+            alert("Error logging out. Please try again.");
+          }
+        } catch (error) {
+          console.error("Logout error:", error);
+          alert("Error logging out. Please try again.");
+        }
+      }
+    };
+  });
+</script>
+
+<style>
+  .btn-lg.w-100.p-4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-lg.w-100.p-4:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+  }
+
+  .badge {
+    font-size: 0.75em;
+  }
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .fa-4x {
+    opacity: 0.5;
+  }
+
+  .table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+  }
+</style>

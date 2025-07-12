@@ -58,6 +58,49 @@ router.get(
   authController.getProviderProfile
 );
 
+// Middleware to check if provider is authenticated via session
+const ensureProviderSessionAuthenticated = (req, res, next) => {
+  if (req.session && req.session.user && req.session.user.type === "provider") {
+    return next();
+  }
+  return res.status(401).json({
+    success: false,
+    message: "Access denied. Please login as a provider.",
+  });
+};
+
+// Shipment Request Routes
+router.get(
+  "/requests",
+  ensureProviderSessionAuthenticated,
+  providerController.getProviderRequests
+);
+
+router.get(
+  "/dashboard-data",
+  ensureProviderSessionAuthenticated,
+  providerController.getProviderDashboard
+);
+
+router.post(
+  "/requests/:requestId/accept",
+  ensureProviderSessionAuthenticated,
+  providerController.acceptShipmentRequest
+);
+
+router.post(
+  "/requests/:requestId/reject",
+  ensureProviderSessionAuthenticated,
+  providerController.rejectShipmentRequest
+);
+
+// POST - Update shipment status
+router.post(
+  "/requests/:requestId/update-status",
+  ensureProviderSessionAuthenticated,
+  providerController.updateShipmentStatus
+);
+
 // POST - Provider logout API endpoint
 router.post(
   "/logout",

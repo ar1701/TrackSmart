@@ -408,11 +408,11 @@ const ensureSellerAuthenticated = (req, res, next) => {
 };
 
 module.exports = {
-  login: sellerLoginAPI,
-  logout: sellerLogoutAPI,
-  dashboard: getSellerDashboard,
-  getProfile: getSellerProfile,
-  updateProfile: updateSellerProfile,
-  register: sellerRegisterAPI,
+  sellerLoginAPI,
+  sellerLogoutAPI,
+  getSellerDashboard,
+  getSellerProfile,
+  updateSellerProfile,
+  sellerRegisterAPI,
   ensureSellerAuthenticated,
 };

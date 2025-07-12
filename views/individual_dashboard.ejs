@@ -1,0 +1,115 @@
+<%- include('partials/header', { title: 'Seller Dashboard - TrackSmart', currentPage: 'seller-dashboard' }) %>
+
+<!-- Seller Header -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 4rem;">
+  <div class="container py-5">
+    <h1 class="display-4 text-white mb-3 animated slideInDown">Welcome, Seller</h1>
+    <p class="text-white mb-0">Manage your orders and payments from one place</p>
+  </div>
+</div>
+
+<!-- Order & Payment Section -->
+<div class="container-xxl">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Place Order Form -->
+      <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+        <h3 class="mb-4">📦 Place a New Order</h3>
+        <form id="sellerOrderForm">
+          <div class="row g-3">
+            <div class="col-12">
+              <input type="text" class="form-control border-0" name="customerName" placeholder="Customer Name" required style="height: 55px" />
+            </div>
+            <div class="col-12">
+              <input type="text" class="form-control border-0" name="deliveryAddress" placeholder="Delivery Address" required style="height: 55px" />
+            </div>
+            <div class="col-6">
+              <input type="number" class="form-control border-0" name="weight" placeholder="Weight (kg)" required style="height: 55px" />
+            </div>
+            <div class="col-6">
+              <input type="number" class="form-control border-0" name="value" placeholder="Package Value (₹)" required style="height: 55px" />
+            </div>
+            <div class="col-12">
+              <textarea class="form-control border-0" name="notes" placeholder="Special Instructions (optional)" rows="3"></textarea>
+            </div>
+
+            <!-- Recommended Carrier -->
+            <div class="col-12">
+              <div class="bg-white p-3 border border-primary rounded">
+                <h5>Recommended Carrier: <span id="sellerCarrier" class="text-primary">--</span></h5>
+                <p class="mb-0">Based on your shipment size and weight.</p>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-primary w-100 py-3" type="submit">Place Order</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Payment Section -->
+      <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+        <h3 class="mb-4">💳 Payment Options</h3>
+        <div class="border rounded p-4 bg-light">
+          <p>Choose your preferred payment method:</p>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD" checked />
+            <label class="form-check-label" for="cod">Cash on Delivery (COD)</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="prepaid" value="Prepaid" />
+            <label class="form-check-label" for="prepaid">Pay Now (UPI / Card / Wallet)</label>
+          </div>
+          <div id="paymentSection" class="mt-3 d-none">
+            <label for="upiId" class="form-label">Enter UPI ID or Card Info:</label>
+            <input type="text" class="form-control" id="upiId" placeholder="example@upi or **** **** **** 1234" />
+            <button class="btn btn-success mt-3 w-100">Pay ₹<span id="payAmount">--</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Logic -->
+<script>
+  const form = document.getElementById("sellerOrderForm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const weight = parseFloat(form.weight.value);
+    const value = parseFloat(form.value.value);
+    let carrier = "";
+
+    if (weight > 20) {
+      carrier = "BlueDart Express";
+    } else if (weight < 5) {
+      carrier = "Shiprocket Lite";
+    } else {
+      carrier = "Delhivery Standard";
+    }
+
+    document.getElementById("sellerCarrier").innerText = carrier;
+    alert("Order placed successfully with " + carrier + "!");
+  });
+
+  // Payment logic
+  const paymentRadios = document.getElementsByName("paymentMethod");
+  const paymentSection = document.getElementById("paymentSection");
+  const payAmount = document.getElementById("payAmount");
+
+  paymentRadios.forEach((radio) =>
+    radio.addEventListener("change", function () {
+      if (this.value === "Prepaid") {
+        paymentSection.classList.remove("d-none");
+        const val = document.querySelector("[name='value']").value || 0;
+        payAmount.textContent = parseFloat(val);
+      } else {
+        paymentSection.classList.add("d-none");
+      }
+    })
+  );
+</script>
+
+<%- include('partials/footer') %>

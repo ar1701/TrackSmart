@@ -94,7 +94,7 @@
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a class="dropdown-item" href="/logout"
+                <a class="dropdown-item" href="#" onclick="logoutProvider()"
                   ><i class="fas fa-sign-out-alt me-2"></i>Logout</a
                 >
               </li>
@@ -232,25 +232,542 @@
         </div>
       </div>
 
-      <!-- Recent Activity (Placeholder) -->
+      <!-- Statistics Cards -->
+      <% if (typeof stats !== 'undefined') { %>
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-inbox stats-icon text-info"></i>
+            <h4 class="mb-0"><%= stats.totalRequests %></h4>
+            <p class="text-muted mb-0">Total Requests</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-clock stats-icon text-warning"></i>
+            <h4 class="mb-0"><%= stats.pendingRequests %></h4>
+            <p class="text-muted mb-0">Pending</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-check-circle stats-icon text-success"></i>
+            <h4 class="mb-0"><%= stats.acceptedRequests %></h4>
+            <p class="text-muted mb-0">Accepted</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-rupee-sign stats-icon text-primary"></i>
+            <h4 class="mb-0">
+              ₹<%= (stats.totalRevenue || 0).toLocaleString() %>
+            </h4>
+            <p class="text-muted mb-0">Total Revenue</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Shipment Requests -->
       <div class="row">
         <div class="col-12">
           <div class="provider-info">
-            <h4 class="mb-3">
-              <i class="fas fa-history me-2"></i>Recent Activity
-            </h4>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0">
+                <i class="fas fa-shipping-fast me-2"></i>Shipment Requests <% if
+                (typeof pendingRequests !== 'undefined' &&
+                pendingRequests.length > 0) { %>
+                <span class="badge bg-warning ms-2"
+                  ><%= pendingRequests.length %> Pending</span
+                >
+                <% } %>
+              </h4>
+              <button
+                class="btn btn-outline-primary btn-sm"
+                onclick="location.reload()"
+              >
+                <i class="fas fa-refresh me-1"></i>Refresh
+              </button>
+            </div>
+
+            <% if (typeof requests !== 'undefined' && requests.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Route</th>
+                    <th>Weight</th>
+                    <th>Requested Cost</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% requests.slice(0, 10).forEach(request => { %>
+                  <tr>
+                    <td>
+                      <code><%= request._id.toString().slice(-8) %></code>
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        <%= request.shipmentId.sender.pincode %>
+                        <i class="fas fa-arrow-right mx-1"></i>
+                        <%= request.shipmentId.receiver.pincode %>
+                      </small>
+                      <br />
+                      <span
+                        ><%= request.shipmentId.sender.name %> → <%=
+                        request.shipmentId.receiver.name %></span
+                      >
+                    </td>
+                    <td><%= request.shipmentId.weight %>kg</td>
+                    <td>
+                      ₹<%= (request.quoteId?.estimatedCost || request.requestedCost || 0).toLocaleString() %>
+                    </td>
+                    <td>
+                      <% if (request.status === 'pending') { %>
+                      <span class="badge bg-warning">Pending</span>
+                      <% } else if (request.status === 'accepted') { %>
+                      <span class="badge bg-success">Accepted</span>
+                      <% } else if (request.status === 'rejected') { %>
+                      <span class="badge bg-danger">Rejected</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <small
+                        ><%= new Date(request.createdAt).toLocaleDateString()
+                        %></small
+                      >
+                    </td>
+                    <td>
+                      <% if (request.status === 'pending') { %>
+                      <button
+                        class="btn btn-success btn-sm me-1"
+                        onclick="handleRequest('<%= request._id %>', 'accept')"
+                      >
+                        <i class="fas fa-check"></i>
+                      </button>
+                      <button
+                        class="btn btn-danger btn-sm"
+                        onclick="handleRequest('<%= request._id %>', 'reject')"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                      <% } else if (request.status === 'accepted') { %>
+                      <button
+                        class="btn btn-info btn-sm me-1"
+                        onclick="updateShipmentStatus('<%= request._id %>')"
+                        title="Update Status"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button
+                        class="btn btn-outline-secondary btn-sm"
+                        onclick="viewRequestDetails('<%= request._id %>')"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <% } else { %>
+                      <button
+                        class="btn btn-info btn-sm"
+                        onclick="viewRequestDetails('<%= request._id %>')"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (requests.length > 10) { %>
+            <div class="text-center mt-3">
+              <p class="text-muted">
+                Showing 10 of <%= requests.length %> requests
+              </p>
+              <button
+                class="btn btn-outline-primary"
+                onclick="alert('Pagination coming soon!')"
+              >
+                View All Requests
+              </button>
+            </div>
+            <% } %> <% } else { %>
             <div class="text-center py-4">
               <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-              <p class="text-muted">No recent activity to display</p>
-              <small class="text-muted"
-                >Your shipment history and updates will appear here</small
-              >
+              <p class="text-muted">No shipment requests received yet</p>
+              <small class="text-muted">
+                Shipment requests from sellers will appear here when they select
+                your services
+              </small>
             </div>
+            <% } %>
           </div>
         </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let currentRequestId = null;
+      let currentAction = null;
+
+      // Handle request acceptance/rejection
+      async function handleRequest(requestId, action) {
+        currentRequestId = requestId;
+        currentAction = action;
+
+        // Try modal approach first, fallback to simple prompts
+        try {
+          if (action === 'accept') {
+            const modal = new bootstrap.Modal(document.getElementById('acceptModal'));
+            modal.show();
+          } else if (action === 'reject') {
+            const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            modal.show();
+          }
+        } catch (error) {
+          console.error('Modal error, using fallback approach:', error);
+          
+          // Fallback: Use simple prompts
+          if (action === 'accept') {
+            const actualCost = prompt('Enter actual cost for this shipment:');
+            if (actualCost && !isNaN(actualCost)) {
+              await processRequest('accept', { actualCost: parseFloat(actualCost) });
+            }
+          } else if (action === 'reject') {
+            const rejectionReason = prompt('Enter reason for rejection:');
+            if (rejectionReason && rejectionReason.trim()) {
+              await processRequest('reject', { rejectionReason: rejectionReason.trim() });
+            }
+          }
+        }
+      }
+
+      // Confirm accept request
+      document.getElementById('confirmAccept').addEventListener('click', async function() {
+        const actualCost = document.getElementById('actualCost').value;
+
+        if (!actualCost || parseFloat(actualCost) <= 0) {
+          alert('Please enter a valid cost amount');
+          return;
+        }
+
+        await processRequest('accept', { actualCost: parseFloat(actualCost) });
+      });
+
+      // Confirm reject request
+      document.getElementById('confirmReject').addEventListener('click', async function() {
+        const rejectionReason = document.getElementById('rejectionReason').value.trim();
+
+        if (!rejectionReason) {
+          alert('Please provide a reason for rejection');
+          return;
+        }
+
+        await processRequest('reject', { rejectionReason });
+      });
+
+      // Process the request
+      async function processRequest(action, data) {
+        try {
+          console.log(`Processing ${action} request for ${currentRequestId}`, data);
+          
+          const response = await fetch(`/api/providers/requests/${currentRequestId}/${action}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+          });
+
+          console.log(`Response status: ${response.status}`);
+          const result = await response.json();
+          console.log('Response data:', result);
+
+          if (result.success) {
+            // Close modal if it exists
+            try {
+              const modalElement = action === 'accept' ?
+                document.getElementById('acceptModal') :
+                document.getElementById('rejectModal');
+              const modal = bootstrap.Modal.getInstance(modalElement);
+              if (modal) {
+                modal.hide();
+              }
+            } catch (modalError) {
+              console.log('Modal close error (ignoring):', modalError);
+            }
+
+            // Clear form inputs
+            if (action === 'accept') {
+              const costInput = document.getElementById('actualCost');
+              if (costInput) costInput.value = '';
+            } else {
+              const reasonInput = document.getElementById('rejectionReason');
+              if (reasonInput) reasonInput.value = '';
+            }
+
+            alert(`Request ${action}ed successfully!`);
+            location.reload();
+          } else {
+            alert(`Error: ${result.message}`);
+          }
+        } catch (error) {
+          console.error('Error handling request:', error);
+          alert('Error processing request. Please try again.');
+        }
+      }
+
+      // View request details
+      function viewRequestDetails(requestId) {
+        // For now, just show an alert. In future, this could open a modal with full details
+        alert(`Request details for ${requestId} - Feature coming soon!`);
+      }
+
+      // Logout function
+      async function logoutProvider() {
+        if (confirm('Are you sure you want to logout?')) {
+          try {
+            const response = await fetch('/api/providers/logout', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              window.location.href = '/main-login';
+            } else {
+              alert('Error logging out. Please try again.');
+            }
+          } catch (error) {
+            console.error('Logout error:', error);
+            alert('Error logging out. Please try again.');
+          }
+        }
+      }
+
+      // Make logout function global
+      window.logoutProvider = logoutProvider;
+
+      // Status Update functionality
+      let currentUpdateRequestId = null;
+
+      // Show status update modal
+      window.updateShipmentStatus = function(requestId) {
+        currentUpdateRequestId = requestId;
+        const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
+        modal.show();
+      };
+
+      // Handle status update confirmation
+      document.getElementById('confirmStatusUpdate').addEventListener('click', async function() {
+        const status = document.getElementById('shipmentStatus').value;
+        const trackingNumber = document.getElementById('trackingNumber').value.trim();
+        const notes = document.getElementById('statusNotes').value.trim();
+
+        if (!status) {
+          alert('Please select a status');
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/providers/requests/${currentUpdateRequestId}/update-status`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              status: status,
+              trackingNumber: trackingNumber || null,
+              notes: notes || null
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('statusUpdateModal'));
+            modal.hide();
+
+            // Clear form
+            document.getElementById('shipmentStatus').value = '';
+            document.getElementById('trackingNumber').value = '';
+            document.getElementById('statusNotes').value = '';
+
+            alert('Status updated successfully!');
+            location.reload();
+          } else {
+            alert(`Error: ${result.message}`);
+          }
+        } catch (error) {
+          console.error('Error updating status:', error);
+          alert('Error updating status. Please try again.');
+        }
+      });
+
+      // Auto-refresh every 30 seconds for pending requests
+      <% if (typeof pendingRequests !== 'undefined' && pendingRequests.length > 0) { %>
+      setTimeout(() => {
+        location.reload();
+      }, 30000);
+      <% } %>
+    </script>
+
+    <!-- Accept Request Modal -->
+    <div
+      class="modal fade"
+      id="acceptModal"
+      tabindex="-1"
+      aria-labelledby="acceptModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="acceptModalLabel">
+              Accept Shipment Request
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Please enter the actual cost for this shipment:</p>
+            <div class="mb-3">
+              <label for="actualCost" class="form-label">Actual Cost (₹)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="actualCost"
+                placeholder="Enter amount"
+                min="0"
+                step="0.01"
+                required
+              />
+              <div class="form-text">
+                This will be the final cost charged to the customer.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-success" id="confirmAccept">
+              Accept Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Request Modal -->
+    <div
+      class="modal fade"
+      id="rejectModal"
+      tabindex="-1"
+      aria-labelledby="rejectModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rejectModalLabel">
+              Reject Shipment Request
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Please provide a reason for rejecting this shipment request:</p>
+            <div class="mb-3">
+              <label for="rejectionReason" class="form-label"
+                >Rejection Reason</label
+              >
+              <textarea
+                class="form-control"
+                id="rejectionReason"
+                rows="3"
+                placeholder="Enter reason for rejection"
+                required
+              ></textarea>
+              <div class="form-text">
+                This will be communicated to the seller.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmReject">
+              Reject Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal fade" id="statusUpdateModal" tabindex="-1" aria-labelledby="statusUpdateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="statusUpdateModalLabel">Update Shipment Status</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="shipmentStatus" class="form-label">Shipment Status</label>
+              <select class="form-select" id="shipmentStatus" required>
+                <option value="">Select Status</option>
+                <option value="picked_up">Picked Up</option>
+                <option value="in_transit">In Transit</option>
+                <option value="out_for_delivery">Out for Delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="failed_delivery">Failed Delivery</option>
+                <option value="returned">Returned</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="trackingNumber" class="form-label">Tracking Number (Optional)</label>
+              <input type="text" class="form-control" id="trackingNumber" placeholder="Enter tracking number">
+              <div class="form-text">Provide tracking number for customer reference.</div>
+            </div>
+            <div class="mb-3">
+              <label for="statusNotes" class="form-label">Notes (Optional)</label>
+              <textarea class="form-control" id="statusNotes" rows="3" placeholder="Additional notes about status update..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmStatusUpdate">Update Status</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>

@@ -1,0 +1,366 @@
+<%- include('partials/header', { title: 'My Shipments - TrackSmart' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">My Shipments</h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/api/sellers/dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          My Shipments
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Shipments Section Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+      <h6 class="text-secondary text-uppercase">Track Your Business</h6>
+      <h1 class="mb-5">Shipment Management</h1>
+      <div class="mb-4">
+        <a href="/api/sellers/new-shipment" class="btn btn-primary btn-lg">
+          <i class="fas fa-plus me-2"></i>Create New Shipment
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Search by shipment ID, parcel name, or receiver..."
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            id="searchBtn"
+          >
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select id="statusFilter" class="form-select">
+          <option value="">All Status</option>
+          <option value="draft">Draft</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="picked_up">Picked Up</option>
+          <option value="in_transit">In Transit</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button id="refreshBtn" class="btn btn-outline-primary w-100">
+          <i class="fas fa-refresh me-2"></i>Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center d-none">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading shipments...</p>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer" class="mb-4"></div>
+
+    <!-- Shipments Table -->
+    <div id="shipmentsContainer" class="wow fadeInUp" data-wow-delay="0.3s">
+      <div class="bg-light p-4 rounded">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>Shipment ID</th>
+                <th>Parcel Name</th>
+                <th>Receiver</th>
+                <th>Distance</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Tracking Number</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shipmentsTableBody">
+              <!-- Shipments will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center d-none">
+      <div class="bg-light p-5 rounded">
+        <i class="fas fa-shipping-fast fa-4x text-muted mb-4"></i>
+        <h4>No Shipments Found</h4>
+        <p class="text-muted mb-4">
+          You haven't created any shipments yet. Start by creating your first
+          shipment.
+        </p>
+        <a href="/api/sellers/new-shipment" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Create First Shipment
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Shipments Section End -->
+
+<%- include('partials/footer') %>
+
+<!-- Custom JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const shipmentsTableBody = document.getElementById("shipmentsTableBody");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const shipmentsContainer = document.getElementById("shipmentsContainer");
+    const emptyState = document.getElementById("emptyState");
+    const alertContainer = document.getElementById("alertContainer");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    let allShipments = [];
+    let filteredShipments = [];
+
+    // Show alert function
+    function showAlert(message, type = "danger") {
+      alertContainer.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+    }
+
+    // Clear alerts
+    function clearAlerts() {
+      alertContainer.innerHTML = "";
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      const statusClasses = {
+        draft: "bg-secondary",
+        confirmed: "bg-info",
+        picked_up: "bg-warning",
+        in_transit: "bg-primary",
+        delivered: "bg-success",
+        cancelled: "bg-danger",
+      };
+
+      const statusLabels = {
+        draft: "Draft",
+        confirmed: "Confirmed",
+        picked_up: "Picked Up",
+        in_transit: "In Transit",
+        delivered: "Delivered",
+        cancelled: "Cancelled",
+      };
+
+      return `<span class="badge ${
+        statusClasses[status] || "bg-secondary"
+      }">${statusLabels[status] || status}</span>`;
+    }
+
+    // Render shipments table
+    function renderShipments(shipments) {
+      if (shipments.length === 0) {
+        shipmentsContainer.classList.add("d-none");
+        emptyState.classList.remove("d-none");
+        return;
+      }
+
+      shipmentsContainer.classList.remove("d-none");
+      emptyState.classList.add("d-none");
+
+      shipmentsTableBody.innerHTML = shipments
+        .map(
+          (shipment) => `
+      <tr>
+        <td><strong>${shipment.shipmentId}</strong></td>
+        <td>${shipment.parcelName}</td>
+        <td>
+          <div>${shipment.receiver.name}</div>
+          <small class="text-muted">${shipment.receiver.pincode}</small>
+        </td>
+        <td>${shipment.distance ? shipment.distance + " km" : "N/A"}</td>
+        <td>${getStatusBadge(shipment.status)}</td>
+        <td>${formatDate(shipment.createdAt)}</td>
+        <td>${shipment.trackingNumber || "-"}</td>
+        <td>
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-primary" onclick="viewShipment('${
+              shipment.id
+            }')">
+              <i class="fas fa-eye"></i>
+            </button>
+            ${
+              shipment.status === "draft"
+                ? `
+              <button type="button" class="btn btn-outline-success" onclick="confirmShipment('${shipment.id}')">
+                <i class="fas fa-check"></i>
+              </button>
+            `
+                : ""
+            }
+          </div>
+        </td>
+      </tr>
+    `
+        )
+        .join("");
+    }
+
+    // Filter shipments
+    function filterShipments() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      const statusFilter_value = statusFilter.value;
+
+      filteredShipments = allShipments.filter((shipment) => {
+        const matchesSearch =
+          !searchTerm ||
+          shipment.shipmentId.toLowerCase().includes(searchTerm) ||
+          shipment.parcelName.toLowerCase().includes(searchTerm) ||
+          shipment.receiver.name.toLowerCase().includes(searchTerm);
+
+        const matchesStatus =
+          !statusFilter_value || shipment.status === statusFilter_value;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      renderShipments(filteredShipments);
+    }
+
+    // Load shipments
+    async function loadShipments() {
+      try {
+        clearAlerts();
+        loadingSpinner.classList.remove("d-none");
+        shipmentsContainer.classList.add("d-none");
+        emptyState.classList.add("d-none");
+
+        const response = await fetch("/api/sellers/shipments");
+        const data = await response.json();
+
+        if (data.success) {
+          allShipments = data.data.shipments;
+          filterShipments();
+        } else {
+          showAlert(data.message || "Failed to load shipments.");
+        }
+      } catch (error) {
+        console.error("Error loading shipments:", error);
+        showAlert(
+          "An error occurred while loading shipments. Please try again."
+        );
+      } finally {
+        loadingSpinner.classList.add("d-none");
+      }
+    }
+
+    // View shipment details
+    window.viewShipment = function (shipmentId) {
+      window.location.href = `/api/sellers/shipments/${shipmentId}`;
+    };
+
+    // Confirm shipment
+    window.confirmShipment = async function (shipmentId) {
+      if (
+        !confirm(
+          "Are you sure you want to confirm this shipment? This action cannot be undone."
+        )
+      ) {
+        return;
+      }
+
+      try {
+        // You can implement shipment confirmation API here
+        showAlert(
+          "Shipment confirmation feature will be implemented soon.",
+          "info"
+        );
+      } catch (error) {
+        console.error("Error confirming shipment:", error);
+        showAlert("An error occurred while confirming the shipment.");
+      }
+    };
+
+    // Event listeners
+    searchInput.addEventListener("input", filterShipments);
+    statusFilter.addEventListener("change", filterShipments);
+    refreshBtn.addEventListener("click", loadShipments);
+
+    // Initial load
+    loadShipments();
+  });
+</script>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+  }
+
+  .btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .badge {
+    font-size: 0.75em;
+  }
+
+  .table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+  }
+
+  .input-group .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  #emptyState i {
+    opacity: 0.5;
+  }
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+</style>

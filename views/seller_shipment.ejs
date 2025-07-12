@@ -1,0 +1,478 @@
+<%- include('partials/header', { title: 'Shipment Details - TrackSmart' }) %>
+
+<!-- Page Header Start -->
+<div class="container-fluid page-header py-5" style="margin-bottom: 6rem">
+  <div class="container py-5">
+    <h1 class="display-3 text-white mb-3 animated slideInDown">
+      Shipment Details
+    </h1>
+    <nav aria-label="breadcrumb animated slideInDown">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/api/sellers/dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a class="text-white" href="/api/sellers/my-shipments"
+            >My Shipments</a
+          >
+        </li>
+        <li class="breadcrumb-item text-white active" aria-current="page">
+          Shipment Details
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Shipment Details Section Start -->
+<div class="container-xxl py-5">
+  <div class="container py-5">
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading shipment details...</p>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer" class="mb-4"></div>
+
+    <!-- Shipment Details Container -->
+    <div id="shipmentDetailsContainer" class="d-none">
+      <!-- Shipment Header -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <h2 id="shipmentTitle" class="mb-2"></h2>
+          <p class="text-muted mb-0" id="shipmentSubtitle"></p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <div id="shipmentStatusBadge" class="mb-2"></div>
+          <div id="trackingNumber" class="text-muted"></div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="bg-light p-3 rounded">
+            <div class="btn-group" role="group">
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                onclick="window.history.back()"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+              </button>
+              <button
+                type="button"
+                id="editBtn"
+                class="btn btn-outline-secondary d-none"
+              >
+                <i class="fas fa-edit me-2"></i>Edit Shipment
+              </button>
+              <button
+                type="button"
+                id="confirmBtn"
+                class="btn btn-success d-none"
+              >
+                <i class="fas fa-check me-2"></i>Confirm Shipment
+              </button>
+              <button type="button" id="printBtn" class="btn btn-outline-info">
+                <i class="fas fa-print me-2"></i>Print Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Details -->
+      <div class="row g-4">
+        <!-- Parcel Information -->
+        <div class="col-lg-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-box me-2 text-primary"></i>Parcel Information
+            </h4>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-bold">Parcel Name:</label>
+                <p id="parcelName" class="mb-2"></p>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Weight:</label>
+                <p id="weight" class="mb-2"></p>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Dimensions:</label>
+                <p id="dimensions" class="mb-2"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance & Location -->
+        <div class="col-lg-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-route me-2 text-primary"></i>Distance & Location
+            </h4>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-bold">Distance:</label>
+                <p id="distance" class="mb-2"></p>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Source Location:</label>
+                <p id="sourceLocation" class="mb-2"></p>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Destination Location:</label>
+                <p id="destinationLocation" class="mb-2"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="col-lg-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-user-tie me-2 text-primary"></i>Sender
+              Information
+            </h4>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Name:</label>
+              <p id="senderName" class="mb-2"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Address:</label>
+              <p id="senderAddress" class="mb-2"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Contact:</label>
+              <p id="senderContact" class="mb-2"></p>
+            </div>
+            <div class="mb-0">
+              <label class="form-label fw-bold">Pincode:</label>
+              <p id="senderPincode" class="mb-0"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiver Information -->
+        <div class="col-lg-6">
+          <div class="bg-light p-4 rounded h-100">
+            <h4 class="mb-4">
+              <i class="fas fa-user me-2 text-primary"></i>Receiver Information
+            </h4>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Name:</label>
+              <p id="receiverName" class="mb-2"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Address:</label>
+              <p id="receiverAddress" class="mb-2"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Contact:</label>
+              <p id="receiverContact" class="mb-2"></p>
+            </div>
+            <div class="mb-0">
+              <label class="form-label fw-bold">Pincode:</label>
+              <p id="receiverPincode" class="mb-0"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipment Status & Timeline -->
+        <div class="col-12">
+          <div class="bg-light p-4 rounded">
+            <h4 class="mb-4">
+              <i class="fas fa-clock me-2 text-primary"></i>Shipment Timeline
+            </h4>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Created At:</label>
+                <p id="createdAt" class="mb-2"></p>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Confirmed At:</label>
+                <p id="confirmedAt" class="mb-2"></p>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Estimated Cost:</label>
+                <p id="estimatedCost" class="mb-2"></p>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Provider:</label>
+                <p id="provider" class="mb-2"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Shipment Details Section End -->
+
+<%- include('partials/footer') %>
+
+<!-- Custom JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const shipmentDetailsContainer = document.getElementById(
+      "shipmentDetailsContainer"
+    );
+    const alertContainer = document.getElementById("alertContainer");
+
+    // Get shipment ID from URL
+    const pathParts = window.location.pathname.split("/");
+    const shipmentId = pathParts[pathParts.length - 1];
+
+    // Show alert function
+    function showAlert(message, type = "danger") {
+      alertContainer.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+    }
+
+    // Clear alerts
+    function clearAlerts() {
+      alertContainer.innerHTML = "";
+    }
+
+    // Format date
+    function formatDateTime(dateString) {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return date.toLocaleString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      const statusClasses = {
+        draft: "bg-secondary",
+        confirmed: "bg-info",
+        picked_up: "bg-warning",
+        in_transit: "bg-primary",
+        delivered: "bg-success",
+        cancelled: "bg-danger",
+      };
+
+      const statusLabels = {
+        draft: "Draft",
+        confirmed: "Confirmed",
+        picked_up: "Picked Up",
+        in_transit: "In Transit",
+        delivered: "Delivered",
+        cancelled: "Cancelled",
+      };
+
+      return `<span class="badge ${
+        statusClasses[status] || "bg-secondary"
+      } fs-6">${statusLabels[status] || status}</span>`;
+    }
+
+    // Populate shipment details
+    function populateShipmentDetails(shipment) {
+      // Header
+      document.getElementById(
+        "shipmentTitle"
+      ).textContent = `Shipment ${shipment.shipmentId}`;
+      document.getElementById(
+        "shipmentSubtitle"
+      ).textContent = `Parcel: ${shipment.parcelName}`;
+      document.getElementById("shipmentStatusBadge").innerHTML = getStatusBadge(
+        shipment.status
+      );
+      document.getElementById("trackingNumber").textContent =
+        shipment.trackingNumber
+          ? `Tracking: ${shipment.trackingNumber}`
+          : "No tracking number assigned";
+
+      // Parcel Information
+      document.getElementById("parcelName").textContent = shipment.parcelName;
+      document.getElementById("weight").textContent = `${shipment.weight} kg`;
+      document.getElementById(
+        "dimensions"
+      ).textContent = `${shipment.dimensions.length} × ${shipment.dimensions.width} × ${shipment.dimensions.height} cm`;
+
+      // Distance & Location
+      document.getElementById("distance").textContent = shipment.distance
+        ? `${shipment.distance} km`
+        : "Not calculated";
+      document.getElementById("sourceLocation").textContent =
+        shipment.sourceLocation
+          ? `${shipment.sourceLocation.city}, ${shipment.sourceLocation.state}`
+          : "N/A";
+      document.getElementById("destinationLocation").textContent =
+        shipment.destinationLocation
+          ? `${shipment.destinationLocation.city}, ${shipment.destinationLocation.state}`
+          : "N/A";
+
+      // Sender Information
+      document.getElementById("senderName").textContent = shipment.sender.name;
+      document.getElementById("senderAddress").textContent =
+        shipment.sender.address;
+      document.getElementById("senderContact").textContent =
+        shipment.sender.contact;
+      document.getElementById("senderPincode").textContent =
+        shipment.sender.pincode;
+
+      // Receiver Information
+      document.getElementById("receiverName").textContent =
+        shipment.receiver.name;
+      document.getElementById("receiverAddress").textContent =
+        shipment.receiver.address;
+      document.getElementById("receiverContact").textContent =
+        shipment.receiver.contact;
+      document.getElementById("receiverPincode").textContent =
+        shipment.receiver.pincode;
+
+      // Timeline & Status
+      document.getElementById("createdAt").textContent = formatDateTime(
+        shipment.createdAt
+      );
+      document.getElementById("confirmedAt").textContent = formatDateTime(
+        shipment.confirmedAt
+      );
+      document.getElementById("estimatedCost").textContent =
+        shipment.estimatedCost
+          ? `₹${shipment.estimatedCost}`
+          : "Not calculated";
+      document.getElementById("provider").textContent = shipment.provider
+        ? shipment.provider.name
+        : "Not assigned";
+
+      // Show/hide action buttons based on status
+      const editBtn = document.getElementById("editBtn");
+      const confirmBtn = document.getElementById("confirmBtn");
+
+      if (shipment.status === "draft") {
+        editBtn.classList.remove("d-none");
+        confirmBtn.classList.remove("d-none");
+      }
+    }
+
+    // Load shipment details
+    async function loadShipmentDetails() {
+      try {
+        clearAlerts();
+        loadingSpinner.classList.remove("d-none");
+        shipmentDetailsContainer.classList.add("d-none");
+
+        const response = await fetch(`/api/sellers/shipments/${shipmentId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          populateShipmentDetails(data.data.shipment);
+          shipmentDetailsContainer.classList.remove("d-none");
+        } else {
+          showAlert(data.message || "Failed to load shipment details.");
+        }
+      } catch (error) {
+        console.error("Error loading shipment details:", error);
+        showAlert(
+          "An error occurred while loading shipment details. Please try again."
+        );
+      } finally {
+        loadingSpinner.classList.add("d-none");
+      }
+    }
+
+    // Print functionality
+    document.getElementById("printBtn").addEventListener("click", function () {
+      window.print();
+    });
+
+    // Confirm shipment
+    document
+      .getElementById("confirmBtn")
+      .addEventListener("click", function () {
+        if (
+          confirm(
+            "Are you sure you want to confirm this shipment? This action cannot be undone."
+          )
+        ) {
+          showAlert(
+            "Shipment confirmation feature will be implemented soon.",
+            "info"
+          );
+        }
+      });
+
+    // Edit shipment
+    document.getElementById("editBtn").addEventListener("click", function () {
+      showAlert("Edit shipment feature will be implemented soon.", "info");
+    });
+
+    // Initial load
+    if (shipmentId) {
+      loadShipmentDetails();
+    } else {
+      showAlert("Invalid shipment ID.");
+    }
+  });
+</script>
+
+<style>
+  .form-label.fw-bold {
+    color: #495057;
+    margin-bottom: 0.25rem;
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  .badge.fs-6 {
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-group .btn {
+    margin-right: 0.5rem;
+  }
+
+  .btn-group .btn:last-child {
+    margin-right: 0;
+  }
+
+  @media print {
+    .btn-group,
+    .breadcrumb,
+    nav {
+      display: none !important;
+    }
+
+    .container-fluid.page-header {
+      margin-bottom: 2rem !important;
+    }
+
+    .page-header h1 {
+      color: #000 !important;
+    }
+  }
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  p {
+    word-break: break-word;
+  }
+</style>

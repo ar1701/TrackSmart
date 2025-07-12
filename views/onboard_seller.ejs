@@ -36,11 +36,17 @@ currentPage: 'onboard-seller' }) %>
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="bg-light p-5 wow fadeInUp" data-wow-delay="0.3s">
-          <form>
+          <!-- Success/Error Messages -->
+          <div id="alertContainer" class="mb-3" style="display: none">
+            <div id="alertMessage" class="alert" role="alert"></div>
+          </div>
+
+          <form id="sellerOnboardForm">
             <div class="row g-3">
               <div class="col-12 col-md-6">
                 <input
                   type="text"
+                  name="name"
                   class="form-control border-0"
                   placeholder="Seller Name"
                   style="height: 55px"
@@ -50,6 +56,7 @@ currentPage: 'onboard-seller' }) %>
               <div class="col-12 col-md-6">
                 <input
                   type="email"
+                  name="email"
                   class="form-control border-0"
                   placeholder="Email Address"
                   style="height: 55px"
@@ -59,6 +66,7 @@ currentPage: 'onboard-seller' }) %>
               <div class="col-12 col-md-6">
                 <input
                   type="text"
+                  name="phone"
                   class="form-control border-0"
                   placeholder="Phone Number"
                   style="height: 55px"
@@ -68,6 +76,7 @@ currentPage: 'onboard-seller' }) %>
               <div class="col-12 col-md-6">
                 <input
                   type="text"
+                  name="businessName"
                   class="form-control border-0"
                   placeholder="Business Name"
                   style="height: 55px"
@@ -76,6 +85,7 @@ currentPage: 'onboard-seller' }) %>
               </div>
               <div class="col-12">
                 <textarea
+                  name="businessAddress"
                   class="form-control border-0"
                   placeholder="Business Address"
                   rows="2"
@@ -85,6 +95,7 @@ currentPage: 'onboard-seller' }) %>
               <div class="col-12 col-md-6">
                 <input
                   type="text"
+                  name="gstNumber"
                   class="form-control border-0"
                   placeholder="GST Number"
                   style="height: 55px"
@@ -93,6 +104,7 @@ currentPage: 'onboard-seller' }) %>
               <div class="col-12 col-md-6">
                 <input
                   type="text"
+                  name="website"
                   class="form-control border-0"
                   placeholder="Website (Optional)"
                   style="height: 55px"
@@ -100,6 +112,7 @@ currentPage: 'onboard-seller' }) %>
               </div>
               <div class="col-12">
                 <textarea
+                  name="productCategories"
                   class="form-control border-0"
                   placeholder="Product Categories (e.g. electronics, clothing, home decor)"
                   rows="2"
@@ -107,14 +120,24 @@ currentPage: 'onboard-seller' }) %>
               </div>
               <div class="col-12">
                 <textarea
+                  name="notes"
                   class="form-control border-0"
                   placeholder="Additional Notes or Requirements"
                   rows="2"
                 ></textarea>
               </div>
               <div class="col-12">
-                <button class="btn btn-primary w-100 py-3" type="submit">
-                  Submit Seller Application
+                <button
+                  class="btn btn-primary w-100 py-3"
+                  type="submit"
+                  id="submitBtn"
+                >
+                  <span id="submitText">Submit Seller Application</span>
+                  <span
+                    id="submitSpinner"
+                    class="spinner-border spinner-border-sm ms-2"
+                    style="display: none"
+                  ></span>
                 </button>
               </div>
             </div>
@@ -233,7 +256,6 @@ currentPage: 'onboard-seller' }) %>
 </div>
 <!-- Feature End -->
 
-
 <!-- Back to Top -->
 <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-0 back-to-top"
   ><i class="bi bi-arrow-up"></i
@@ -241,4 +263,89 @@ currentPage: 'onboard-seller' }) %>
 
 <!-- JavaScript Libraries -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<script>
+  // Seller onboarding form handling
+  document
+    .getElementById("sellerOnboardForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submitBtn");
+      const submitText = document.getElementById("submitText");
+      const submitSpinner = document.getElementById("submitSpinner");
+      const alertContainer = document.getElementById("alertContainer");
+      const alertMessage = document.getElementById("alertMessage");
+
+      // Show loading state
+      submitBtn.disabled = true;
+      submitText.textContent = "Submitting...";
+      submitSpinner.style.display = "inline-block";
+      alertContainer.style.display = "none";
+
+      try {
+        // Collect form data
+        const formData = new FormData(this);
+        const sellerData = {
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          businessName: formData.get("businessName"),
+          businessAddress: formData.get("businessAddress"),
+          gstNumber: formData.get("gstNumber"),
+          website: formData.get("website"),
+          productCategories: formData.get("productCategories"),
+          notes: formData.get("notes"),
+        };
+
+        // Submit to API
+        const response = await fetch("/api/sellers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(sellerData),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success message
+          alertMessage.className = "alert alert-success";
+          alertMessage.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Success!</strong> Your seller application has been submitted successfully. 
+        Your application ID is: <strong>${result.data.seller.sellerId}</strong>
+        <br>You will be notified once your application is reviewed.
+      `;
+          alertContainer.style.display = "block";
+
+          // Reset form
+          this.reset();
+
+          // Scroll to success message
+          alertContainer.scrollIntoView({ behavior: "smooth" });
+        } else {
+          throw new Error(result.message || "Failed to submit application");
+        }
+      } catch (error) {
+        console.error("Error submitting seller application:", error);
+
+        // Show error message
+        alertMessage.className = "alert alert-danger";
+        alertMessage.innerHTML = `
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Error!</strong> ${error.message}
+    `;
+        alertContainer.style.display = "block";
+        alertContainer.scrollIntoView({ behavior: "smooth" });
+      } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitText.textContent = "Submit Seller Application";
+        submitSpinner.style.display = "none";
+      }
+    });
+</script>
+
 <%- include('partials/footer') %>

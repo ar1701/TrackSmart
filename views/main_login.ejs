@@ -406,25 +406,8 @@
         '<i class="fa fa-spinner fa-spin me-2"></i>Logging in...';
 
       try {
-        let apiEndpoint;
-
-        // Determine API endpoint based on user type
-        switch (data.userType) {
-          case "user":
-            apiEndpoint = "/api/users/login";
-            break;
-          case "seller":
-            apiEndpoint = "/api/sellers/login";
-            break;
-          case "admin":
-            apiEndpoint = "/api/admin/login";
-            break;
-          case "provider":
-            apiEndpoint = "/api/providers/login";
-            break;
-          default:
-            throw new Error("Invalid user type");
-        }
+        // Use unified login endpoint
+        const apiEndpoint = "/main-login";
 
         const response = await fetch(apiEndpoint, {
           method: "POST",
@@ -434,6 +417,7 @@
           body: JSON.stringify({
             username: data.username,
             password: data.password,
+            userType: data.userType,
             rememberMe: data.rememberMe === "on",
           }),
         });
@@ -450,21 +434,26 @@
         </div>
       `;
 
-          // Redirect based on user type
+          // Redirect based on user type or use redirectUrl from response
           setTimeout(() => {
-            switch (data.userType) {
-              case "user":
-                window.location.href = "/user/dashboard";
-                break;
-              case "seller":
-                window.location.href = "/seller/dashboard";
-                break;
-              case "admin":
-                window.location.href = "/admin/dashboard";
-                break;
-              case "provider":
-                window.location.href = "/dashboard";
-                break;
+            if (result.data && result.data.redirectUrl) {
+              window.location.href = result.data.redirectUrl;
+            } else {
+              // Fallback redirect logic
+              switch (data.userType) {
+                case "user":
+                  window.location.href = "/user/dashboard";
+                  break;
+                case "seller":
+                  window.location.href = "/seller/dashboard";
+                  break;
+                case "admin":
+                  window.location.href = "/admin/dashboard";
+                  break;
+                case "provider":
+                  window.location.href = "/dashboard";
+                  break;
+              }
             }
           }, 1500);
         } else {
