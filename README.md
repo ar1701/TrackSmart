@@ -2,9 +2,7 @@
 ### **"Empowering Deliveries, Bridging Networks, Transforming Logistics."**
 
 
-![Logo](public/img/TrackSmart_Logo.jpeg)
-
-## Demo: https://youtu.be/93QrNImodUw?feature=shared
+![Logo](TrackSmart_Logo.jpeg)
 
 **TrackSmart** is an open-source platform revolutionizing the logistics landscape in India. Built on the BECKN protocol, it offers unified, real-time shipment tracking across carriers and transport modes—bringing transparency, predictive insights, and operational efficiency to e-commerce and small businesses, especially in Tier-2 and Tier-3 cities.
 
@@ -17,98 +15,75 @@ From small-town sellers to last-mile carriers, TrackSmart brings everyone onto a
 
 ---
 
-#### **Inspiration**
+## **Inspiration**
 
-In our state, particularly in rural and semi-urban areas, students are brimming with untapped potential. Yet, they face a harsh reality: the digital divide and lack of exposure to technology rob them of opportunities to shine in today’s fast-paced, tech-driven world. These young minds, often the first in their families to dream of higher education, are held back by systemic challenges.  
+Imagine you’ve shipped a product from Bihar to Bengaluru. After pickup, there’s no trace of its journey until delivery. Now multiply that frustration across millions of sellers and e-commerce customers—especially in regions where delivery issues can break trust.
 
-Imagine a classroom where students are eager to learn, but they don’t have access to computers. Picture a teenager with incredible problem-solving skills who has never heard of coding. Visualize a community where dreams of a better future are stifled by the absence of mentors, guidance, and career clarity. This is the current state for many students in our rural and semi-urban regions.  
+We were inspired by this broken experience—where:
 
-Despite their talent and determination, these students encounter:  
-- **A lack of awareness** about opportunities in technology and beyond.  
-- **Scarce resources**—few computers, unreliable internet, and outdated learning materials.  
-- **Limited mentorship**, leaving them directionless in choosing careers or developing skills.  
-- **An education system** that prioritizes rote learning over hands-on experience, making it difficult to compete in a global job market.  
+Sellers chase multiple portals to know where a shipment is.
+
+Customers are left clueless about delays or handovers.
+
+Carriers lack ecosystem integration to scale efficiently.
+
+TrackSmart brings a modern, transparent, and API-first solution to this outdated model—built not for a few tech giants, but for every logistic stakeholder in the country. 
+
 -----
 
 ## **Key Features**
 
-### 🌟 **Dynamic Curriculum Generator**  
-**Revolutionize the way students learn!** Our **Dynamic Curriculum Generator** empowers students by curating **personalized learning paths** based on their **current grade level** and **interests**. Students can explore a vast array of topics, and when they find something that excites them, they can dive deeper into that subject. The curriculum adapts in real-time, allowing students to discover **new interests** and **develop skills** in a highly engaging, self-paced manner. This personalized approach ensures that no student is ever stuck with irrelevant or outdated content.
+### **BECKN-Compliant Open Source Architecture**  
+We standardize shipment flows using the BECKN BAP protocol—enabling plug-and-play carrier integration and simplifying how logistics platforms scale.
 
-### 🤖 **24/7 Doubt-Solving Assistant**  
-**Never stop learning, never stop solving.** Our **AI-powered assistant** is available 24/7, offering immediate answers to both **academic and general queries**. Whether it’s a math problem, a scientific concept, or a question about life skills, students can rely on the assistant for **instant help**. With the power of AI, this assistant can provide **accurate and relevant answers** in real-time, breaking down barriers that prevent students from progressing.
-
-### 🎨 **Visual Doubt-Solving Tool**  
-Sometimes, a **visual solution** makes all the difference. Our **Visual Doubt-Solving Tool** allows students to upload images of their problems and receive **detailed visual solutions**. This includes things like **step-by-step illustrations**, **graphs**, and **diagrams** that simplify complex problems. This visual approach gives students an **intuitive understanding** of the solution, helping them better grasp challenging concepts without getting bogged down in dense explanations. Learning through **visual aids** accelerates understanding and retention.
-
-### 📝 **Practice Section for Academic and Interest-Based Subjects**  
-**Master any subject** with continuous practice! The **Practice Section** allows students to engage in **interactive quizzes** and **exercises** designed to reinforce learning, both for **academic subjects** and **personal interests**. This flexible feature ensures that students not only excel in their school subjects but also have the opportunity to explore and develop expertise in areas that fascinate them, whether it’s coding, music, art, or beyond. Regular practice, with instant feedback, ensures that students continuously improve.
-
-### 🔥 **Flashcards Generator with Gamification**  
-Learning is more fun when it feels like a game! Our **Flashcards Generator** enables students to create **custom flashcards** to practice key concepts. Through **gamification**, we transform study sessions into engaging, competitive challenges where students earn rewards and achievements. This interactive tool makes **reviewing content** enjoyable and keeps students motivated as they move through their learning journey.
-
-### 📰 **Tech Newsletters for Future-Ready Students**  
-Stay ahead of the curve! Our **Tech Newsletter** keeps students updated with the latest trends in technology, career opportunities, and industry news. By subscribing for free, students receive curated **insights** directly in their inbox, ensuring they stay informed and **ready for the future**. From breakthrough innovations in AI to new job roles emerging in the tech industry, the newsletter helps students stay **knowledgeable and future-ready**.
+### **Consumer & Merchant Dashboards**  
+Both sellers and end-customers can visualize shipment progress on our intuitive React dashboard, with map-based tracking, event timelines, and exportable reports.
 
 ---
 ## **Technologies & Tools Used -**
 
 - **Frontend**: CSS, JavaScript, ejs  
 - **Backend**: NodeJS, ExpressJS, MongoDB Atlas  
-- **Framework**: Bootstrap  
-- **LLMWare**:  
-  - LLaMA-2-7b-Chat-GGUF (Chatbot & Problem-solving in Visual Problem Solving)  
-  - phi3-GGUF (Dynamic Curriculum Generator)  
-  - tiny-LLamA-chat-GGUF (Ask Me Anything)  
-- **OCR**: Gemini API  
-- **Other Tools**: Libraries, Python  
+- **Framework**: Bootstrap    
+- **Other Tools**: Libraries & OpenStreetMap(OSM) API 
 
 
 ---
 
 ### Challenges We Ran Into
 
-1. **Model Size and Documentation**: One of the key challenges we faced was managing the large AI models, such as **LLaMA-2**, which significantly impacted performance and memory usage. Additionally, the complexity of model documentation made the integration process difficult and time-consuming, requiring careful handling and understanding to implement effectively.
+1. **Complexity of BECKN Integration**: Standardizing carrier APIs through BECKN required deep protocol understanding and careful orchestration of message flows.
 
-2. **Integration and Optimization**: Running large models like **LLaMA-2** on devices with limited computing power and bandwidth posed another challenge. Optimizing these models for performance while maintaining functionality and user experience was crucial. We had to ensure that the platform remained responsive and efficient, even on lower-end devices.
+Despite these challenges, we successfully overcame each issue by optimizing models, refining the integration process, and ensuring the accuracy of our tools. This allowed us to deliver a seamless and functional experience for our customers.
 
-3. **OCR-Based Doubt-Solving Tool**: Developing an accurate OCR system to read and solve problems from scanned or handwritten content was a complex task. Ensuring the OCR tool could handle varying handwriting styles and image quality while providing accurate, real-time solutions was a significant hurdle.
 
-Despite these challenges, we successfully overcame each issue by optimizing models, refining the integration process, and ensuring the accuracy of our tools. This allowed us to deliver a seamless and functional learning experience for underprivileged students.
 
 ---
 ## **Access and Reach**
 
-### **Designed for Accessibility on Mobile Devices**  
-In today’s digital age, **mobile phones are a basic necessity**. Our platform is built with this in mind, offering a **mobile-first design** that works seamlessly across all devices. By adopting **Progressive Web App (PWA) technology**, we ensure that students can access the platform efficiently even on **low-bandwidth connections** and **basic smartphones**. This low-cost, high-performance solution guarantees that students from any background can stay connected to quality learning, anywhere and anytime.
-
-### **Expanding Reach through Partnerships and Franchises**  
-We are committed to making this platform accessible to all. Our strategy includes:
-- **Franchise Model for Local Schools**: Partner with schools to offer the platform as an **affordable addition** to their curriculum, ensuring that students can access premium features at a **low cost**. This makes education accessible without financial barriers.
-- **Collaborations with Governments and NGOs**: We actively partner with **local governments**, **NGOs**, and **charitable organizations** to provide access to this platform at **no cost** or a **subsidized fee**, ensuring that even the most underprivileged students can benefit.
+### **Plug-and-Play Onboarding for Regional Couriers**  
+Any logistics provider can be integrated via a simple BECKN endpoint—giving Tier-3 & Tier-2 carriers national visibility without infrastructure overhead.
 
 ---
 
 ## **Revenue Model**
 
-### **Sustainable Revenue Through Ethical Advertising**  
-We prioritize **education over profit**. Our **advertising-based revenue model** ensures that students have access to high-quality content without compromising their experience. By displaying **non-intrusive, relevant ads**, we generate revenue that supports the platform’s development and maintenance, without affecting students’ learning journey. This ensures that our platform remains **low-cost** and **highly effective**, providing maximum value to our users.
+#### **Tiered API pricing for enterprise partners and integrators.**  
 
+#### **Non-intrusive ads for long-term cost recovery.**  
+
+#### TrackSmart remains committed to staying open-source and transparent, with community-led governance and standardization.
 ---
 
 ## **What’s Next: Future Directions**
 
-As we continue to innovate and expand our platform, we have an exciting roadmap that will bring even more value to our students, mentors, and communities. Here’s what’s coming next:
+As we continue to innovate and expand our platform, we have an exciting roadmap that will bring even more value to this. Here’s what’s coming next:
 
-🌍 AI-Powered Personalized Learning Paths
-We are integrating AI-powered personalization to create dynamic learning paths for each student. The AI will adapt to their learning style, performance, and interests, providing tailored recommendations for lessons and resources. This means that, in the near future, every student will have a customized learning journey that optimally supports their progress, engagement, and growth.
+**AI-Driven Route Optimization: **
+Incorporating ML-based algorithms to recommend optimal logistics paths across carriers and modes—reducing delivery times.
 
-🤝 Personalized Mentorship at Scale
-Our vision for mentorship is evolving. We’re working on creating a scalable mentorship program, where one-on-one sessions and expert talks will become more accessible. By connecting students with experienced mentors in various fields, we’ll help students receive personalized guidance on career paths, domain selection, and skills development. This future program will empower students with real-world advice, helping them make informed decisions about their futures.
 
-💡 Career Guidance and Expert-Led Workshops
-We're expanding our focus to career readiness. Alongside academic content, we will offer regular career counseling sessions, industry expert talks, and vocational training programs. These initiatives will provide students with the tools to navigate the job market, develop industry-relevant skills, and select the right career domains. This holistic approach will ensure that students are not only academically prepared but also workforce-ready for today’s competitive world.
 
-### **Join Us in Empowering the Next Generation**
-
-We believe every student deserves the tools to succeed. Our platform is **more than just an educational tool** — it’s a **launchpad for success**, giving students the confidence and resources they need to thrive in a fast-changing world. With your support, we can reach more students and help them achieve their full potential.
+### **Join Us in Transforming Indian Logistics**
+TrackSmart is more than a tool—it’s a movement for unified, intelligent, and inclusive logistics infrastructure.
+Let’s bridge the gap between scattered networks and streamlined delivery experiences—one shipment at a time.
