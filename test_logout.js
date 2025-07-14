@@ -54,7 +54,6 @@ async function testLogout() {
       console.log("   Status:", logoutResponse.status);
       console.log("   Message:", logoutResponse.data.message);
     }
-
   } catch (error) {
     console.error("❌ Test failed:", error.message);
     if (error.response) {

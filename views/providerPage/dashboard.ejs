@@ -607,7 +607,7 @@
               if (sessionStorage) {
                 sessionStorage.clear();
               }
-              
+
               window.location.href = '/main-login';
             } else {
               console.error('Logout failed:', result.message);
@@ -620,8 +620,10 @@
         }
       }
 
-      // Make logout function global
+      // Make functions global for onclick handlers
       window.logoutProvider = logoutProvider;
+      window.handleRequest = handleRequest;
+      window.viewRequestDetails = viewRequestDetails;
 
       // Status Update functionality
       let currentUpdateRequestId = null;

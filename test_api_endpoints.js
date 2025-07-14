@@ -48,8 +48,13 @@ async function testAcceptRejectAPI() {
     );
 
     console.log("Accept endpoint status:", acceptResponse.status);
-    if (acceptResponse.status === 400 || acceptResponse.data?.message?.includes("not found")) {
-      console.log("✅ Accept endpoint is accessible (expected 'not found' for fake ID)");
+    if (
+      acceptResponse.status === 400 ||
+      acceptResponse.data?.message?.includes("not found")
+    ) {
+      console.log(
+        "✅ Accept endpoint is accessible (expected 'not found' for fake ID)"
+      );
     } else {
       console.log("Accept response:", acceptResponse.data);
     }
@@ -71,8 +76,13 @@ async function testAcceptRejectAPI() {
     );
 
     console.log("Reject endpoint status:", rejectResponse.status);
-    if (rejectResponse.status === 400 || rejectResponse.data?.message?.includes("not found")) {
-      console.log("✅ Reject endpoint is accessible (expected 'not found' for fake ID)");
+    if (
+      rejectResponse.status === 400 ||
+      rejectResponse.data?.message?.includes("not found")
+    ) {
+      console.log(
+        "✅ Reject endpoint is accessible (expected 'not found' for fake ID)"
+      );
     } else {
       console.log("Reject response:", rejectResponse.data);
     }
@@ -83,11 +93,12 @@ async function testAcceptRejectAPI() {
     console.log("✅ Accept API endpoint: Accessible");
     console.log("✅ Reject API endpoint: Accessible");
     console.log("\n🎯 Frontend Integration:");
-    console.log("The backend APIs are working. If buttons don't work in browser:");
+    console.log(
+      "The backend APIs are working. If buttons don't work in browser:"
+    );
     console.log("1. Check browser console (F12) for JavaScript errors");
     console.log("2. Ensure Bootstrap modals are loading properly");
     console.log("3. Check that handleRequest() function is defined globally");
-
   } catch (error) {
     console.error("❌ Test failed:", error.message);
     if (error.response) {
