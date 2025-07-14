@@ -593,17 +593,29 @@
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
-              }
+              },
+              credentials: 'same-origin' // Include session cookies
             });
 
-            if (response.ok) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              // Clear any local storage or session storage if used
+              if (localStorage) {
+                localStorage.clear();
+              }
+              if (sessionStorage) {
+                sessionStorage.clear();
+              }
+              
               window.location.href = '/main-login';
             } else {
-              alert('Error logging out. Please try again.');
+              console.error('Logout failed:', result.message);
+              alert('Error logging out: ' + (result.message || 'Please try again.'));
             }
           } catch (error) {
             console.error('Logout error:', error);
-            alert('Error logging out. Please try again.');
+            alert('Network error during logout. Please try again.');
           }
         }
       }

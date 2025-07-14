@@ -210,24 +210,36 @@ const providerLoginAPI = async (req, res, next) => {
 
 // API: Provider Logout
 const providerLogoutAPI = (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error("Logout error:", err);
+  try {
+    // Clear session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return handleResponse(res, {
+          type: "api",
+          success: false,
+          statusCode: 500,
+          message: "Logout error",
+          data: { error: err.message },
+        });
+      }
+
       return handleResponse(res, {
         type: "api",
-        success: false,
-        statusCode: 500,
-        message: "Logout error",
-        data: { error: err.message },
+        success: true,
+        message: "Logged out successfully",
       });
-    }
-
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
     return handleResponse(res, {
       type: "api",
-      success: true,
-      message: "Logged out successfully",
+      success: false,
+      statusCode: 500,
+      message: "Logout error",
+      data: { error: error.message },
     });
-  });
+  }
 };
 
 // API: Get Provider Dashboard Data

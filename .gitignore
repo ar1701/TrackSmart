@@ -1,2 +1,19 @@
 .env
 node_modules/
+
+# Test files and debugging scripts
+tests/
+docs/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

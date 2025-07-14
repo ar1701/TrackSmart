@@ -60,6 +60,9 @@ router.get(
 
 // Middleware to check if provider is authenticated via session
 const ensureProviderSessionAuthenticated = (req, res, next) => {
+  console.log("Session check - req.session:", req.session);
+  console.log("Session check - req.session.user:", req.session?.user);
+  
   if (req.session && req.session.user && req.session.user.type === "provider") {
     return next();
   }
@@ -101,10 +104,9 @@ router.post(
   providerController.updateShipmentStatus
 );
 
-// POST - Provider logout API endpoint
+// POST - Provider logout API endpoint (no auth required since we're logging out)
 router.post(
-  "/logout",
-  ensureAPIAuthenticated,
+  "/logout", 
   authController.providerLogoutAPI
 );
 
