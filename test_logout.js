@@ -57,6 +57,10 @@ async function testLogout() {
 
   } catch (error) {
     console.error("❌ Test failed:", error.message);
+    if (error.response) {
+      console.log("Error status:", error.response.status);
+      console.log("Error data:", error.response.data);
+    }
   }
 }
 
