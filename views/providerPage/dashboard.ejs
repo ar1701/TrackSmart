@@ -125,9 +125,9 @@
             </h4>
             <div class="row">
               <div class="col-md-6">
-                <p><strong>Provider ID:</strong> <%= provider.bppId %></p>
-                <p><strong>Email:</strong> <%= provider.email %></p>
-                <p><strong>Username:</strong> <%= provider.username %></p>
+                <p><strong>Provider ID:</strong> <%= provider.bppId || 'Not assigned' %></p>
+                <p><strong>Email:</strong> <%= provider.email || 'No email' %></p>
+                <p><strong>Username:</strong> <%= provider.username || provider.bppId || 'Not set' %></p>
               </div>
               <div class="col-md-6">
                 <p>
@@ -143,8 +143,14 @@
                   <% } %>
                 </p>
                 <p>
-                  <strong>Member Since:</strong> <%= new
-                  Date(provider.createdAt).toLocaleDateString() %>
+                  <strong>Member Since:</strong> 
+                  <% if (provider.createdAt) { %>
+                    <%= new Date(provider.createdAt).toLocaleDateString() %>
+                  <% } else if (provider.requestedAt) { %>
+                    <%= new Date(provider.requestedAt).toLocaleDateString() %>
+                  <% } else { %>
+                    Not available
+                  <% } %>
                 </p>
                 <% if (provider.verifiedAt) { %>
                 <p>
@@ -457,46 +463,60 @@
 
       // Handle request acceptance/rejection
       async function handleRequest(requestId, action) {
+        console.log(`Handling ${action} for request:`, requestId);
         currentRequestId = requestId;
         currentAction = action;
+
+        // Check if Bootstrap is loaded
+        if (typeof bootstrap === 'undefined') {
+          console.error('Bootstrap not loaded, using fallback');
+          return handleRequestFallback(requestId, action);
+        }
 
         // Try modal approach first, fallback to simple prompts
         try {
           if (action === 'accept') {
             const acceptModalElement = document.getElementById('acceptModal');
             if (acceptModalElement) {
+              console.log('Showing accept modal');
               const modal = new bootstrap.Modal(acceptModalElement);
               modal.show();
             } else {
+              console.warn('Accept modal not found, using fallback');
               throw new Error('Accept modal not found');
             }
           } else if (action === 'reject') {
             const rejectModalElement = document.getElementById('rejectModal');
             if (rejectModalElement) {
+              console.log('Showing reject modal');
               const modal = new bootstrap.Modal(rejectModalElement);
               modal.show();
             } else {
+              console.warn('Reject modal not found, using fallback');
               throw new Error('Reject modal not found');
             }
           }
         } catch (error) {
           console.error('Modal error, using fallback approach:', error);
+          return handleRequestFallback(requestId, action);
+        }
+      }
 
-          // Fallback: Use simple prompts
-          if (action === 'accept') {
-            const actualCost = prompt('Enter actual cost for this shipment (₹):');
-            if (actualCost && !isNaN(actualCost) && parseFloat(actualCost) > 0) {
-              await processRequest('accept', { actualCost: parseFloat(actualCost) });
-            } else if (actualCost !== null) {
-              alert('Please enter a valid cost amount');
-            }
-          } else if (action === 'reject') {
-            const rejectionReason = prompt('Enter reason for rejection:');
-            if (rejectionReason && rejectionReason.trim()) {
-              await processRequest('reject', { rejectionReason: rejectionReason.trim() });
-            } else if (rejectionReason !== null) {
-              alert('Please provide a reason for rejection');
-            }
+      // Fallback handler when modals don't work
+      async function handleRequestFallback(requestId, action) {
+        if (action === 'accept') {
+          const actualCost = prompt('Enter actual cost for this shipment (₹):');
+          if (actualCost && !isNaN(actualCost) && parseFloat(actualCost) > 0) {
+            await processRequest('accept', { actualCost: parseFloat(actualCost) });
+          } else if (actualCost !== null) {
+            alert('Please enter a valid cost amount');
+          }
+        } else if (action === 'reject') {
+          const rejectionReason = prompt('Enter reason for rejection:');
+          if (rejectionReason && rejectionReason.trim()) {
+            await processRequest('reject', { rejectionReason: rejectionReason.trim() });
+          } else if (rejectionReason !== null) {
+            alert('Please provide a reason for rejection');
           }
         }
       }
@@ -597,25 +617,47 @@
               credentials: 'same-origin' // Include session cookies
             });
 
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-              // Clear any local storage or session storage if used
-              if (localStorage) {
-                localStorage.clear();
+            // Check if response is OK first, then try to parse JSON
+            if (response.ok) {
+              let result;
+              try {
+                result = await response.json();
+              } catch (jsonError) {
+                // If JSON parsing fails, assume logout was successful
+                console.log('Logout successful, but response was not JSON');
+                result = { success: true };
               }
-              if (sessionStorage) {
-                sessionStorage.clear();
-              }
 
-              window.location.href = '/main-login';
-            } else {
-              console.error('Logout failed:', result.message);
-              alert('Error logging out: ' + (result.message || 'Please try again.'));
+              if (result.success !== false) {
+                // Clear any local storage or session storage if used
+                if (typeof(Storage) !== 'undefined') {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                }
+
+                // Force redirect to login page
+                window.location.replace('/main-login');
+                return;
+              }
             }
+
+            // If we get here, there was an error
+            let errorMessage = 'Logout failed. Please try again.';
+            try {
+              const result = await response.json();
+              errorMessage = result.message || errorMessage;
+            } catch (e) {
+              // Can't parse JSON, use default message
+            }
+            
+            console.error('Logout failed:', errorMessage);
+            alert('Error logging out: ' + errorMessage);
+            
           } catch (error) {
             console.error('Logout error:', error);
             alert('Network error during logout. Please try again.');
+            // Fallback: try to redirect anyway
+            window.location.replace('/main-login');
           }
         }
       }
@@ -881,5 +923,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Provider Dashboard Fixes -->
+    <script src="/js/provider-dashboard-fixes.js"></script>
   </body>
 </html>
