@@ -125,9 +125,17 @@
             </h4>
             <div class="row">
               <div class="col-md-6">
-                <p><strong>Provider ID:</strong> <%= provider.bppId || 'Not assigned' %></p>
-                <p><strong>Email:</strong> <%= provider.email || 'No email' %></p>
-                <p><strong>Username:</strong> <%= provider.username || provider.bppId || 'Not set' %></p>
+                <p>
+                  <strong>Provider ID:</strong> <%= provider.bppId || 'Not
+                  assigned' %>
+                </p>
+                <p>
+                  <strong>Email:</strong> <%= provider.email || 'No email' %>
+                </p>
+                <p>
+                  <strong>Username:</strong> <%= provider.username ||
+                  provider.bppId || 'Not set' %>
+                </p>
               </div>
               <div class="col-md-6">
                 <p>
@@ -143,14 +151,12 @@
                   <% } %>
                 </p>
                 <p>
-                  <strong>Member Since:</strong> 
-                  <% if (provider.createdAt) { %>
-                    <%= new Date(provider.createdAt).toLocaleDateString() %>
-                  <% } else if (provider.requestedAt) { %>
-                    <%= new Date(provider.requestedAt).toLocaleDateString() %>
-                  <% } else { %>
-                    Not available
-                  <% } %>
+                  <strong>Member Since:</strong>
+                  <% if (provider.createdAt) { %> <%= new
+                  Date(provider.createdAt).toLocaleDateString() %> <% } else if
+                  (provider.requestedAt) { %> <%= new
+                  Date(provider.requestedAt).toLocaleDateString() %> <% } else {
+                  %> Not available <% } %>
                 </p>
                 <% if (provider.verifiedAt) { %>
                 <p>
@@ -649,10 +655,10 @@
             } catch (e) {
               // Can't parse JSON, use default message
             }
-            
+
             console.error('Logout failed:', errorMessage);
             alert('Error logging out: ' + errorMessage);
-            
+
           } catch (error) {
             console.error('Logout error:', error);
             alert('Network error during logout. Please try again.');
@@ -923,8 +929,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Provider Dashboard Fixes -->
-    <script src="/js/provider-dashboard-fixes.js"></script>
   </body>
 </html>
